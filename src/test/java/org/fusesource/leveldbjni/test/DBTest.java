@@ -63,7 +63,7 @@ public class DBTest extends TestCase {
     @Test
     public void testOpen() throws IOException {
 
-        Options options = new Options().createIfMissing(true);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -89,7 +89,7 @@ public class DBTest extends TestCase {
     @Test
     public void testCRUD() throws IOException, DBException {
 
-        Options options = new Options().createIfMissing(true);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
