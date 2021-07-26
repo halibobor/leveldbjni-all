@@ -6,7 +6,7 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above
@@ -16,7 +16,7 @@
  *    * Neither the name of FuseSource Corp. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -31,12 +31,26 @@
  */
 package org.fusesource.leveldbjni;
 
-import org.fusesource.leveldbjni.internal.*;
-import org.iq80.leveldb.*;
-
-import java.io.*;
-import java.net.URL;
-import java.util.concurrent.Callable;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import org.fusesource.leveldbjni.internal.JniDB;
+import org.fusesource.leveldbjni.internal.NativeBuffer;
+import org.fusesource.leveldbjni.internal.NativeCache;
+import org.fusesource.leveldbjni.internal.NativeComparator;
+import org.fusesource.leveldbjni.internal.NativeCompressionType;
+import org.fusesource.leveldbjni.internal.NativeDB;
+import org.fusesource.leveldbjni.internal.NativeFilter;
+import org.fusesource.leveldbjni.internal.NativeLogger;
+import org.fusesource.leveldbjni.internal.NativeOptions;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBComparator;
+import org.iq80.leveldb.DBFactory;
+import org.iq80.leveldb.Logger;
+import org.iq80.leveldb.Options;
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -89,6 +103,7 @@ public class JniDBFactory implements DBFactory {
     static private class OptionsResourceHolder {
 
         NativeCache cache = null;
+        NativeFilter filter = null ;
         NativeComparator comparator=null;
         NativeLogger logger=null;
         NativeOptions options;
@@ -117,6 +132,11 @@ public class JniDBFactory implements DBFactory {
             if(value.cacheSize()>0 ) {
                 cache = new NativeCache(value.cacheSize());
                 options.cache(cache);
+            }
+
+            if(value.bitsPerKey() > 0 ) {
+                filter = new NativeFilter(value.bitsPerKey());
+                options.filter(filter);
             }
 
             final DBComparator userComparator = value.comparator();
@@ -150,6 +170,9 @@ public class JniDBFactory implements DBFactory {
         public void close() {
             if(cache!=null) {
                 cache.delete();
+            }
+            if(filter!=null) {
+                filter.delete();
             }
             if(comparator!=null){
                 comparator.delete();

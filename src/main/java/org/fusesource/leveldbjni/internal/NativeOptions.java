@@ -6,7 +6,7 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above
@@ -16,7 +16,7 @@
  *    * Neither the name of FuseSource Corp. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -86,6 +86,11 @@ public class NativeOptions {
     private long block_cache = 0;
     @JniField(flags={FIELD_SKIP})
     private NativeCache cache;
+
+    @JniField(cast="const leveldb::FilterPolicy*")
+    private long filter_policy = 0;
+    @JniField(flags={FIELD_SKIP})
+    private NativeFilter filter;
 
     @JniField(cast="leveldb::CompressionType")
     private int compression = NativeCompressionType.kSnappyCompression.value;
@@ -201,6 +206,20 @@ public class NativeOptions {
             this.block_cache = cache.pointer();
         } else {
             this.block_cache = 0;
+        }
+        return this;
+    }
+
+    public NativeFilter filter() {
+        return filter;
+    }
+
+    public NativeOptions filter(NativeFilter filter) {
+        this.filter = filter;
+        if( filter!=null ) {
+            this.filter_policy = filter.pointer();
+        } else {
+            this.filter_policy = 0;
         }
         return this;
     }

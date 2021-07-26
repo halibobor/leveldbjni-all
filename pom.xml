@@ -48,14 +48,14 @@
     <forge-project-id>leveldbjni</forge-project-id>
     <forge-project-id-uc>LEVELDBJNI</forge-project-id-uc>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <hawtjni-version>1.11</hawtjni-version>
-    <leveldb-api-version>0.12</leveldb-api-version>
+    <hawtjni-version>1.18</hawtjni-version>
+    <leveldb-api-version>v0.12.8</leveldb-api-version>
     <junit-version>4.7</junit-version>
   </properties>
-  
+
   <name>${project.artifactId}</name>
   <description>An uber jar which contains all the leveldbjni platform libraries and dependencies</description>
-      
+
   <dependencies>
     <dependency>
       <groupId>org.fusesource.hawtjni</groupId>
@@ -63,7 +63,7 @@
       <version>${hawtjni-version}</version>
     </dependency>
     <dependency>
-      <groupId>org.iq80.leveldb</groupId>
+      <groupId>com.github.halibobo1205.leveldb-java</groupId>
       <artifactId>leveldb-api</artifactId>
       <version>${leveldb-api-version}</version>
     </dependency>
@@ -173,7 +173,7 @@
 
     </plugins>
   </build>
-  
+
   <profiles>
     <profile>
       <id>release</id>
@@ -186,7 +186,7 @@
           <optional>true</optional>
         </dependency>
       </dependencies>
-          
+
       <build>
         <plugins>
           <plugin>
@@ -217,5 +217,5 @@
       </build>
     </profile>
   </profiles>
-  
+
 </project>
