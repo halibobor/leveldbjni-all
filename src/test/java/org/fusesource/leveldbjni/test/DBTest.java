@@ -253,7 +253,9 @@ public class DBTest extends TestCase {
         String stats = db.getProperty("leveldb.stats");
         assertNotNull(stats);
         assertTrue(stats.contains("Compactions"));
-
+        String memory_usage = db.getProperty("leveldb.approximate-memory-usage");
+        assertNotNull(memory_usage);
+        assertTrue(Integer.parseInt(memory_usage) > 0);
         db.close();
     }
 
