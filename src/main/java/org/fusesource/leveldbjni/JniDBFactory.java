@@ -128,9 +128,6 @@ public class JniDBFactory implements DBFactory {
                     break;
             }
 
-            if (value.cache() != null) {
-                options.cache(cache);
-            }
 
             if(value.cacheSize()>0 ) {
                 cache = new NativeCache(value.cacheSize());

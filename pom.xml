@@ -49,6 +49,7 @@
     <forge-project-id-uc>LEVELDBJNI</forge-project-id-uc>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hawtjni-version>1.18</hawtjni-version>
+    <leveldb-api-version>v0.12.8</leveldb-api-version>
     <junit-version>4.7</junit-version>
   </properties>
 
@@ -60,6 +61,11 @@
       <groupId>org.fusesource.hawtjni</groupId>
       <artifactId>hawtjni-runtime</artifactId>
       <version>${hawtjni-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.halibobo1205.leveldb-java</groupId>
+      <artifactId>leveldb-api</artifactId>
+      <version>${leveldb-api-version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -141,7 +147,7 @@
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
             <Export-Package>
               org.fusesource.leveldbjni*;version=${project.version},
-              org.iq80.leveldb*;version=${project.version},
+              org.iq80.leveldb*;version=${leveldb-api-version},
               org.fusesource.hawtjni*;version=${hawtjni-version},
             </Export-Package>
             <Import-Package/>
@@ -211,4 +217,10 @@
       </build>
     </profile>
   </profiles>
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
 </project>

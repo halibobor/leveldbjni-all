@@ -34,7 +34,6 @@ package org.fusesource.leveldbjni.test;
 import junit.framework.TestCase;
 import org.fusesource.leveldbjni.JniDBFactory;
 import org.fusesource.leveldbjni.internal.JniDB;
-import org.fusesource.leveldbjni.internal.NativeCache;
 import org.iq80.leveldb.*;
 import org.junit.Test;
 
@@ -53,12 +52,10 @@ import static org.fusesource.leveldbjni.JniDBFactory.factory;
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 public class DBTest extends TestCase {
-    private final NativeCache cache = new NativeCache(1024 * 1024);
-    private final Options baseOpt = new Options().createIfMissing(true).cache(cache);
 
     File getTestDirectory(String name) throws IOException {
         File rc = new File(new File("test-data"), name);
-        factory.destroy(rc, baseOpt);
+        factory.destroy(rc, new Options().createIfMissing(true));
         rc.mkdirs();
         return rc;
     }
@@ -66,7 +63,7 @@ public class DBTest extends TestCase {
     @Test
     public void testOpen() throws IOException {
 
-        Options options = baseOpt.bitsPerKey(10);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -92,7 +89,7 @@ public class DBTest extends TestCase {
     @Test
     public void testCRUD() throws IOException, DBException {
 
-        Options options = baseOpt.bitsPerKey(10);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -120,7 +117,7 @@ public class DBTest extends TestCase {
     @Test
     public void testIterator() throws IOException, DBException {
 
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -149,7 +146,7 @@ public class DBTest extends TestCase {
     @Test
     public void testSnapshot() throws IOException, DBException {
 
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -181,7 +178,7 @@ public class DBTest extends TestCase {
     @Test
     public void testWriteBatch() throws IOException, DBException {
 
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -215,7 +212,7 @@ public class DBTest extends TestCase {
 
     @Test
     public void testApproximateSizes() throws IOException, DBException {
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -239,7 +236,7 @@ public class DBTest extends TestCase {
 
     @Test
     public void testGetProperty() throws IOException, DBException {
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -264,7 +261,7 @@ public class DBTest extends TestCase {
 
     @Test
     public void testCustomComparator1() throws IOException, DBException {
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         options.comparator(new DBComparator() {
 
             public int compare(byte[] key1, byte[] key2) {
@@ -309,7 +306,7 @@ public class DBTest extends TestCase {
 
     @Test
     public void testCustomComparator2() throws IOException, DBException {
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         options.comparator(new DBComparator() {
 
             public int compare(byte[] key1, byte[] key2) {
@@ -355,7 +352,7 @@ public class DBTest extends TestCase {
     public void testLogger() throws IOException, InterruptedException, DBException {
         final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         options.logger(new Logger() {
             public void log(String message) {
                 messages.add(message);
@@ -385,7 +382,7 @@ public class DBTest extends TestCase {
 
     @Test
     public void testCompactRanges() throws IOException, InterruptedException, DBException {
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
         if( db instanceof JniDB) {
@@ -424,7 +421,7 @@ public class DBTest extends TestCase {
 
     /*@Test
     public void testSuspendAndResumeCompactions() throws Exception {
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
         db.suspendCompactions();
@@ -479,7 +476,7 @@ public class DBTest extends TestCase {
     public void testIssue40_1() throws IOException {
         // incorrect behaviour.., but it shouldn't crash JVM:
         // test: seekToLast() -> next() -> prev()
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -506,7 +503,7 @@ public class DBTest extends TestCase {
     public void testIssue40_2() throws IOException {
         // incorrect behaviour.., but it shouldn't crash JVM
         // test: seekToLast() -> next() -> peekPrev()
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -564,7 +561,7 @@ public class DBTest extends TestCase {
     @Test
     public void testIssue40_3() throws IOException {
         // test seek(after last record) -> peekPrev()/prev()
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         options.comparator(byteComparator);
 
         File path = getTestDirectory(getName());
@@ -607,7 +604,7 @@ public class DBTest extends TestCase {
 
         Map.Entry<byte[], byte[]> entry;
 
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         options.comparator(byteComparator);
 
         File path = getTestDirectory(getName());
@@ -792,7 +789,7 @@ public class DBTest extends TestCase {
 
         Map.Entry<byte[], byte[]> entry;
 
-        Options options = baseOpt;
+        Options options = new Options().createIfMissing(true);
         options.comparator(byteComparator);
 
         File path = getTestDirectory(getName());
@@ -846,57 +843,5 @@ public class DBTest extends TestCase {
 
         it.close();
         db.close();
-    }
-
-    @Test
-    public void testShareCache () throws IOException {
-        Options options = baseOpt.bitsPerKey(10);
-
-        File path1 = getTestDirectory("testShareCache1");
-        File path2 = getTestDirectory("testShareCache2");
-        DB db_1 = factory.open(path1, options);
-        DB db_2 = factory.open(path2, options);
-
-        WriteOptions wo = new WriteOptions().sync(false);
-        ReadOptions ro = new ReadOptions().fillCache(true).verifyChecksums(true);
-
-        db_1.put(bytes("Tampa"), bytes("green"));
-        db_2.put(bytes("Tampa"), bytes("red"));
-        db_1.put(bytes("New York"), bytes("blue"));
-        db_2.put(bytes("New York"), bytes("yellow"));
-
-        assertEquals(db_1.get(bytes("Tampa"), ro), bytes("green"));
-        assertEquals(db_2.get(bytes("Tampa"), ro), bytes("red"));
-        assertEquals(db_1.get(bytes("New York"), ro), bytes("blue"));
-        assertEquals(db_2.get(bytes("New York"), ro), bytes("yellow"));
-        assertEquals(db_1.get(bytes("Tampa"), ro), bytes("green"));
-        assertEquals(db_2.get(bytes("Tampa"), ro), bytes("red"));
-        assertEquals(db_1.get(bytes("New York"), ro), bytes("blue"));
-        assertEquals(db_2.get(bytes("New York"), ro), bytes("yellow"));
-
-        for (int i = 0; i < 1000000; i++) {
-            String k = "Tampa" + i;
-            db_1.put(bytes(k),bytes(UUID.randomUUID().toString()));
-            db_2.put(bytes(k),bytes(UUID.randomUUID().toString()));
-            assertFalse(Arrays.equals(db_1.get(bytes(k)),db_2.get(bytes(k))));
-        }
-
-        assertEquals(db_1.get(bytes("Tampa"), ro), bytes("green"));
-        assertEquals(db_2.get(bytes("Tampa"), ro), bytes("red"));
-        assertEquals(db_1.get(bytes("New York"), ro), bytes("blue"));
-        assertEquals(db_2.get(bytes("New York"), ro), bytes("yellow"));
-        assertEquals(db_1.get(bytes("Tampa"), ro), bytes("green"));
-        assertEquals(db_2.get(bytes("Tampa"), ro), bytes("red"));
-        assertEquals(db_1.get(bytes("New York"), ro), bytes("blue"));
-        assertEquals(db_2.get(bytes("New York"), ro), bytes("yellow"));
-
-        db_1.delete(bytes("New York"), wo);
-        assertNull(db_1.get(bytes("New York"), ro));
-        assertEquals(db_2.get(bytes("New York"), ro), bytes("yellow"));
-        // leveldb does not consider deleting something that does not exist an error.
-        db_1.delete(bytes("New York"), wo);
-
-        db_1.close();
-        db_2.close();
     }
 }
