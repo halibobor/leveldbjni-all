@@ -31,7 +31,6 @@
  */
 package org.fusesource.leveldbjni.internal;
 
-import org.fusesource.leveldbjni.internal.NativeWriteBatch;
 import org.iq80.leveldb.WriteBatch;
 
 /**

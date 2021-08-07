@@ -36,7 +36,6 @@ import org.fusesource.hawtjni.runtime.JniClass;
 import org.fusesource.hawtjni.runtime.JniMethod;
 import org.fusesource.hawtjni.runtime.PointerMath;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fusesource.hawtjni.runtime.ArgFlag.*;
@@ -118,7 +117,7 @@ public class NativeBuffer extends NativeObject {
     }
 
     private static class Pool {
-        private final NativeBuffer.Pool prev;
+        private final Pool prev;
         Allocation allocation;
         long pos;
         long remaining;
@@ -150,7 +149,7 @@ public class NativeBuffer extends NativeObject {
         }
 
         private void allocate() {
-            allocation = new NativeBuffer.Allocation(chunk);
+            allocation = new Allocation(chunk);
             allocation.retain();
             remaining = chunk;
             pos = allocation.self;

@@ -31,7 +31,6 @@
  */
 package org.fusesource.leveldbjni.internal;
 
-import org.fusesource.leveldbjni.internal.*;
 import org.iq80.leveldb.Snapshot;
 
 /**

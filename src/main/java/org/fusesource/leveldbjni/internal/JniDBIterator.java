@@ -31,8 +31,6 @@
  */
 package org.fusesource.leveldbjni.internal;
 
-import org.fusesource.leveldbjni.internal.NativeDB;
-import org.fusesource.leveldbjni.internal.NativeIterator;
 import org.iq80.leveldb.DBIterator;
 
 import java.util.AbstractMap;
@@ -58,6 +56,12 @@ public class JniDBIterator implements DBIterator {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     *   Position at the first key in the source that is at or past target.
+     *   The iterator is Valid() after this call iff the source contains
+     *   an entry that comes at or past target.
+     * @param key
+     */
     public void seek(byte[] key) {
         try {
             iterator.seek(key);
@@ -78,20 +82,36 @@ public class JniDBIterator implements DBIterator {
         iterator.seekToLast();
     }
 
+    @Override
+    public boolean Valid() {
+        return iterator.isValid();
+    }
 
-    public Map.Entry<byte[], byte[]> peekNext() {
-        if(!iterator.isValid()) {
-            throw new NoSuchElementException();
-        }
+    @Override
+    public byte[] key() {
         try {
-            return new AbstractMap.SimpleImmutableEntry<byte[],byte[]>(iterator.key(), iterator.value());
+            return iterator.key();
         } catch (NativeDB.DBException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @Override
+    public byte[] value() {
+        try {
+            return iterator.value();
+        } catch (NativeDB.DBException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public Map.Entry<byte[], byte[]> peekNext() {
+        return this.entry();
+    }
+
     public boolean hasNext() {
-        return iterator.isValid();
+        return this.Valid();
     }
 
     public Map.Entry<byte[], byte[]> next() {
@@ -105,48 +125,29 @@ public class JniDBIterator implements DBIterator {
     }
 
     public boolean hasPrev() {
-        if( !iterator.isValid() ) {
-            return false;
-        }
-        try {
-            iterator.prev();
-            try {
-                return iterator.isValid();
-            } finally {
-                if (iterator.isValid()) {
-                    iterator.next();
-                } else {
-                    iterator.seekToFirst();
-                }
-            }
-        } catch (NativeDB.DBException e) {
-            throw new RuntimeException(e);
-        }
+        return this.Valid();
     }
 
     public Map.Entry<byte[], byte[]> peekPrev() {
+        return this.entry();
+    }
+
+    public Map.Entry<byte[], byte[]> prev() {
         try {
-            try {
-                return this.prev();
-            } finally {
-                if (iterator.isValid()) {
-                    iterator.next();
-                } else {
-                    iterator.seekToFirst();
-                }
-            }
+            Map.Entry<byte[], byte[]> rc = this.peekPrev();
+            iterator.prev();
+            return rc;
         } catch (NativeDB.DBException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Map.Entry<byte[], byte[]> prev() {
+    private Map.Entry<byte[], byte[]> entry() {
         if(!iterator.isValid()) {
             throw new NoSuchElementException();
         }
         try {
-            iterator.prev();
-            return this.peekNext();
+            return new AbstractMap.SimpleImmutableEntry<>(iterator.key(), iterator.value());
         } catch (NativeDB.DBException e) {
             throw new RuntimeException(e);
         }
