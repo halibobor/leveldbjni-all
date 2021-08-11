@@ -63,12 +63,15 @@ public class NativeOptions {
     private boolean create_if_missing = false;
     private boolean error_if_exists = false;
     private boolean paranoid_checks = false;
+    private boolean reuse_logs = false;
     @JniField(cast="size_t")
     private long write_buffer_size = 4 << 20;
     @JniField(cast="size_t")
-    private long block_size = 4086;
+    private long block_size = 4 * 1024;
     private int max_open_files = 1000;
     private int block_restart_interval = 16;
+    @JniField(cast="size_t")
+    private long max_file_size = 2 * 1024 * 1024;
 
     @JniField(flags={FIELD_SKIP})
     private NativeComparator comparatorObject = NativeComparator.BYTEWISE_COMPARATOR;
@@ -119,12 +122,28 @@ public class NativeOptions {
         return paranoid_checks;
     }
 
+    public NativeOptions reuseLogs(boolean value) {
+        this.reuse_logs = value;
+        return this;
+    }
+    public boolean reuseLogs() {
+        return reuse_logs;
+    }
+
     public NativeOptions writeBufferSize(long value) {
         this.write_buffer_size = value;
         return this;
     }
     public long writeBufferSize() {
         return write_buffer_size;
+    }
+
+    public NativeOptions maxFileSize(long value) {
+        this.max_file_size = value;
+        return this;
+    }
+    public long maxFileSize() {
+        return max_file_size;
     }
 
     public NativeOptions maxOpenFiles(int value) {

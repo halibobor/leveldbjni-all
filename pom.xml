@@ -49,7 +49,7 @@
     <forge-project-id-uc>LEVELDBJNI</forge-project-id-uc>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hawtjni-version>1.18</hawtjni-version>
-    <leveldb-api-version>v0.12.9</leveldb-api-version>
+    <leveldb-api-version>v0.12.10</leveldb-api-version>
     <junit-version>4.7</junit-version>
   </properties>
 

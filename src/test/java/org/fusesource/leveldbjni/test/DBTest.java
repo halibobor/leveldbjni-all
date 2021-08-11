@@ -31,20 +31,37 @@
  */
 package org.fusesource.leveldbjni.test;
 
-import junit.framework.TestCase;
-import org.fusesource.leveldbjni.JniDBFactory;
-import org.fusesource.leveldbjni.internal.JniDB;
-import org.iq80.leveldb.*;
-import org.junit.Test;
+import static org.fusesource.leveldbjni.JniDBFactory.asString;
+import static org.fusesource.leveldbjni.JniDBFactory.bytes;
+import static org.fusesource.leveldbjni.JniDBFactory.factory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
-
-import static org.fusesource.leveldbjni.JniDBFactory.asString;
-import static org.fusesource.leveldbjni.JniDBFactory.bytes;
-import static org.fusesource.leveldbjni.JniDBFactory.factory;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.UUID;
+import junit.framework.TestCase;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.fusesource.leveldbjni.internal.JniDB;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBComparator;
+import org.iq80.leveldb.DBException;
+import org.iq80.leveldb.DBIterator;
+import org.iq80.leveldb.Logger;
+import org.iq80.leveldb.Options;
+import org.iq80.leveldb.Range;
+import org.iq80.leveldb.ReadOptions;
+import org.iq80.leveldb.WriteBatch;
+import org.iq80.leveldb.WriteOptions;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * A Unit test for the DB class implementation.
@@ -994,5 +1011,28 @@ public class DBTest extends TestCase {
         iterable3.close();
         iterable4.close();
         database.close();
+    }
+    @Test
+    public void testReuseLogs() throws IOException {
+        Options options = new Options().createIfMissing(true).reuseLogs(true);
+        File path = getTestDirectory(getName());
+        DB db = factory.open(path, options);
+        db.put("halibobo".getBytes(StandardCharsets.UTF_8),"hello".getBytes(StandardCharsets.UTF_8));
+        db.close();
+        DB reopenDb = factory.open(path, options);
+        Assert.assertTrue(Arrays.equals("hello".getBytes(StandardCharsets.UTF_8),
+            reopenDb.get("halibobo".getBytes(StandardCharsets.UTF_8))));
+        reopenDb.close();
+    }
+    @Test
+    public void testMaxFileSize() throws IOException {
+        Options options = new Options().createIfMissing(true).maxFileSize(4 * 1024 * 1024);
+        File path = getTestDirectory(getName());
+        DB db = factory.open(path, options);
+        for (int i = 0; i < 1000000; i++) {
+            byte[] bytes = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
+            db.put(bytes, bytes);
+        }
+        db.close();
     }
 }
