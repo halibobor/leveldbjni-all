@@ -118,6 +118,8 @@ public class JniDBFactory implements DBFactory {
             options.maxOpenFiles(value.maxOpenFiles());
             options.paranoidChecks(value.paranoidChecks());
             options.writeBufferSize(value.writeBufferSize());
+            options.reuseLogs(value.reuseLogs());
+            options.maxFileSize(value.maxFileSize());
 
             switch(value.compressionType()) {
                 case NONE:
