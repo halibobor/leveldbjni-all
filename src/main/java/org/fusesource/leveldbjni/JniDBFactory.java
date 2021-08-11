@@ -31,12 +31,6 @@
  */
 package org.fusesource.leveldbjni;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import org.fusesource.leveldbjni.internal.JniDB;
 import org.fusesource.leveldbjni.internal.NativeBuffer;
 import org.fusesource.leveldbjni.internal.NativeCache;
@@ -52,6 +46,13 @@ import org.iq80.leveldb.DBFactory;
 import org.iq80.leveldb.Logger;
 import org.iq80.leveldb.Options;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
@@ -64,16 +65,10 @@ public class JniDBFactory implements DBFactory {
 
     public static final String VERSION;
     static {
-        String v="unknown";
-        InputStream is = JniDBFactory.class.getResourceAsStream("version.txt");
-        try {
-            v = new BufferedReader(new InputStreamReader(is, "UTF-8")).readLine();
+        String v = "unknown";
+        try (InputStream is = JniDBFactory.class.getResourceAsStream("version.txt")) {
+            v = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)).readLine();
         } catch (Throwable e) {
-        } finally {
-            try {
-                is.close();
-            } catch (Throwable e) {
-            }
         }
         VERSION = v;
     }
@@ -82,30 +77,22 @@ public class JniDBFactory implements DBFactory {
         if( value == null) {
             return null;
         }
-        try {
-            return value.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return value.getBytes(StandardCharsets.UTF_8);
     }
 
-    public static String asString(byte value[]) {
+    public static String asString(byte[] value) {
         if( value == null) {
             return null;
         }
-        try {
-            return new String(value, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return new String(value, StandardCharsets.UTF_8);
     }
 
-    static private class OptionsResourceHolder {
+    private static  class OptionsResourceHolder {
 
         NativeCache cache = null;
         NativeFilter filter = null ;
-        NativeComparator comparator=null;
-        NativeLogger logger=null;
+        NativeComparator comparator = null;
+        NativeLogger logger = null;
         NativeOptions options;
 
         public void init(Options value) {
@@ -131,7 +118,7 @@ public class JniDBFactory implements DBFactory {
             }
 
 
-            if(value.cacheSize()>0 ) {
+            if(value.cacheSize() > 0 ) {
                 cache = new NativeCache(value.cacheSize());
                 options.cache(cache);
             }
@@ -142,7 +129,7 @@ public class JniDBFactory implements DBFactory {
             }
 
             final DBComparator userComparator = value.comparator();
-            if(userComparator!=null) {
+            if(userComparator != null) {
                 comparator = new NativeComparator() {
                     @Override
                     public int compare(byte[] key1, byte[] key2) {
@@ -158,7 +145,7 @@ public class JniDBFactory implements DBFactory {
             }
 
             final Logger userLogger = value.logger();
-            if(userLogger!=null) {
+            if(userLogger != null) {
                 logger = new NativeLogger() {
                     @Override
                     public void log(String message) {
@@ -170,16 +157,16 @@ public class JniDBFactory implements DBFactory {
 
         }
         public void close() {
-            if(cache!=null) {
+            if(cache != null) {
                 cache.delete();
             }
-            if(filter!=null) {
+            if(filter != null) {
                 filter.delete();
             }
-            if(comparator!=null){
+            if(comparator != null){
                 comparator.delete();
             }
-            if(logger!=null) {
+            if(logger != null) {
                 logger.delete();
             }
         }
@@ -194,7 +181,7 @@ public class JniDBFactory implements DBFactory {
         } finally {
             // if we could not open up the DB, then clean up the
             // other allocated native resouces..
-            if(db==null) {
+            if(db == null) {
                 holder.close();
             }
         }
