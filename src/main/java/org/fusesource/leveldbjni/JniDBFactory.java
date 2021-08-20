@@ -185,7 +185,7 @@ public class JniDBFactory implements DBFactory {
                 holder.close();
             }
         }
-        return new JniDB(db, holder.cache, holder.comparator, holder.logger);
+        return new JniDB(db, holder.cache, holder.filter, holder.comparator, holder.logger);
     }
 
     public void destroy(File path, Options options) throws IOException {

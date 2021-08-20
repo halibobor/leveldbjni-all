@@ -45,28 +45,28 @@ import org.fusesource.hawtjni.runtime.JniMethod;
  */
 public class NativeFilter extends NativeObject {
 
-  @JniClass(name="leveldb::FilterPolicy", flags={CPP})
-  private static class FilterJNI {
-    static {
-      NativeDB.LIBRARY.load();
+    @JniClass(name="leveldb::FilterPolicy", flags={CPP})
+    private static class FilterPolicyJNI {
+        static {
+            NativeDB.LIBRARY.load();
+        }
+
+        @JniMethod(cast="const leveldb::FilterPolicy *", accessor="leveldb::NewBloomFilterPolicy")
+        public static final native long NewBloomFilterPolicy(
+                @JniArg(cast="int") int bits_per_key);
+
+        @JniMethod(flags={CPP_DELETE})
+        public static final native void delete(long self);
     }
 
-    @JniMethod(cast="const leveldb::FilterPolicy *", accessor="leveldb::NewBloomFilterPolicy")
-    public static final native long NewBloomFilterPolicy(
-        @JniArg(cast="int") int bits_per_key);
+    public NativeFilter(int bitsPerKey) {
+        super(FilterPolicyJNI.NewBloomFilterPolicy(bitsPerKey));
+    }
 
-    @JniMethod(flags={CPP_DELETE})
-    public static final native void delete(long self);
-  }
-
-  public NativeFilter(int bitsPerKey) {
-    super(FilterJNI.NewBloomFilterPolicy(bitsPerKey));
-  }
-
-  public void delete() {
-    assertAllocated();
-    FilterJNI.delete(self);
-    self = 0;
-  }
+    public void delete() {
+        assertAllocated();
+        FilterPolicyJNI.delete(self);
+        self = 0;
+    }
 
 }

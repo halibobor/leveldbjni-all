@@ -40,12 +40,14 @@ public class JniDB implements DB {
 
     private NativeDB db;
     private NativeCache cache;
+    private NativeFilter filter;
     private NativeComparator comparator;
     private NativeLogger logger;
 
-    public JniDB(NativeDB db, NativeCache cache, NativeComparator comparator, NativeLogger logger) {
+    public JniDB(NativeDB db, NativeCache cache, NativeFilter filter, NativeComparator comparator, NativeLogger logger) {
         this.db = db;
         this.cache = cache;
+        this.filter = filter;
         this.comparator = comparator;
         this.logger = logger;
     }
@@ -57,6 +59,10 @@ public class JniDB implements DB {
             if(cache!=null) {
                 cache.delete();
                 cache = null;
+            }
+            if(filter != null) {
+                filter.delete();
+                filter = null;
             }
             if(comparator!=null){
                 comparator.delete();
