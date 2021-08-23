@@ -134,26 +134,11 @@ public class DBTest extends TestCase {
     @Test
     public void testBloomFilter() throws IOException, DBException {
 
-        Options options1 = new Options().createIfMissing(true).bitsPerKey(10);
-        Options options2 = new Options().createIfMissing(true);
-        Options options3 = new Options().createIfMissing(true).bitsPerKey(10);
-        Options options4 = new Options().createIfMissing(true);
-
-        File path1 = getTestDirectory("testBloomFilter1");
-        File path2 = getTestDirectory("testBloomFilter2");
-        File path3 = getTestDirectory("testBloomFilter3");
-        File path4 = getTestDirectory("testBloomFilter4");
-
-        try (DB db1 = factory.open(path1, options1);
-             DB db2 = factory.open(path2, options2);
-             DB db3 = factory.open(path3, options3);
-             DB db4 = factory.open(path4, options4)){
-            for (int i = 0; i <50000 ; i++) {
+        try (DB db = factory.open(getTestDirectory(getName()),
+            new Options().createIfMissing(true).bitsPerKey(10))){
+            for (int i = 0; i <100 ; i++) {
                 String v = UUID.randomUUID().toString();
-                db1.put(bytes(v), bytes(v));
-                db2.put(bytes(v), bytes(v));
-                db3.put(bytes(v), bytes(v));
-                db4.put(bytes(v), bytes(v));
+                db.put(bytes(v), bytes(v));
             }
         }
     }
