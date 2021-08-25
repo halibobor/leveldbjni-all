@@ -156,7 +156,6 @@
             <Implementation-Version>${project.version}</Implementation-Version>
             <Embed-Dependency>
               *;groupId=org.fusesource.leveldbjni;inline=META-INF/native/*,
-              *;groupId=org.fusesource.leveldbjni;inline=lib/*/*,
             </Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <Bundle-NativeCode>
