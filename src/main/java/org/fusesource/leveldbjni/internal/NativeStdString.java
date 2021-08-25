@@ -6,7 +6,7 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above
@@ -16,7 +16,7 @@
  *    * Neither the name of FuseSource Corp. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,13 +29,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package org.fusesource.leveldbjni.internal;
+
+import static org.fusesource.hawtjni.runtime.ClassFlag.CPP;
+import static org.fusesource.hawtjni.runtime.MethodFlag.CPP_DELETE;
+import static org.fusesource.hawtjni.runtime.MethodFlag.CPP_METHOD;
+import static org.fusesource.hawtjni.runtime.MethodFlag.CPP_NEW;
 
 import org.fusesource.hawtjni.runtime.JniClass;
 import org.fusesource.hawtjni.runtime.JniMethod;
-
-import static org.fusesource.hawtjni.runtime.ClassFlag.CPP;
-import static org.fusesource.hawtjni.runtime.MethodFlag.*;
 
 /**
  * Provides a java interface to the C++ std::string class.
@@ -44,62 +47,63 @@ import static org.fusesource.hawtjni.runtime.MethodFlag.*;
  */
 class NativeStdString extends NativeObject {
 
-    @JniClass(name="std::string", flags={CPP})
-    private static class StdStringJNI {
-        static {
-            NativeDB.LIBRARY.load();
-        }
+  public NativeStdString(long self) {
+    super(self);
+  }
 
-        @JniMethod(flags={CPP_NEW})
-        public static final native long create();
+  public NativeStdString() {
+    super(StdStringJNI.create());
+  }
 
-        @JniMethod(flags={CPP_NEW})
-        public static final native long create(String value);
+  public void delete() {
+    assertAllocated();
+    StdStringJNI.delete(self);
+    self = 0;
+  }
 
-        @JniMethod(flags={CPP_DELETE})
-        static final native void delete(
-                long self);
+  public String toString() {
+    return new String(toByteArray());
+  }
 
-        @JniMethod(flags={CPP_METHOD}, accessor = "c_str", cast="const char*")
-        public static final native long c_str_ptr (
-                long self);
+  public long length() {
+    assertAllocated();
+    return StdStringJNI.length(self);
+  }
 
-        @JniMethod(flags={CPP_METHOD},cast = "size_t")
-        public static final native long length (
-                long self);
+  public byte[] toByteArray() {
+    long l = length();
+    if (l > Integer.MAX_VALUE) {
+      throw new ArrayIndexOutOfBoundsException(
+          "Native string is larger than the maximum Java array");
+    }
+    byte[] rc = new byte[(int) l];
+    NativeBuffer.NativeBufferJNI.buffer_copy(StdStringJNI.c_str_ptr(self), 0, rc, 0, rc.length);
+    return rc;
+  }
 
+  @JniClass(name = "std::string", flags = {CPP})
+  private static class StdStringJNI {
+    static {
+      NativeDB.LIBRARY.load();
     }
 
-    public NativeStdString(long self) {
-        super(self);
-    }
+    @JniMethod(flags = {CPP_NEW})
+    public static final native long create();
 
-    public NativeStdString() {
-        super(StdStringJNI.create());
-    }
+    @JniMethod(flags = {CPP_NEW})
+    public static final native long create(String value);
 
-    public void delete() {
-        assertAllocated();
-        StdStringJNI.delete(self);
-        self = 0;
-    }
+    @JniMethod(flags = {CPP_DELETE})
+    static final native void delete(
+        long self);
 
-    public String toString() {
-        return new String(toByteArray());
-    }
+    @JniMethod(flags = {CPP_METHOD}, accessor = "c_str", cast = "const char*")
+    public static final native long c_str_ptr(
+        long self);
 
-    public long length() {
-        assertAllocated();
-        return StdStringJNI.length(self);
-    }
+    @JniMethod(flags = {CPP_METHOD}, cast = "size_t")
+    public static final native long length(
+        long self);
 
-    public byte[] toByteArray() {
-        long l = length();
-        if( l > Integer.MAX_VALUE ) {
-            throw new ArrayIndexOutOfBoundsException("Native string is larger than the maximum Java array");
-        }
-        byte []rc = new byte[(int) l];
-        NativeBuffer.NativeBufferJNI.buffer_copy(StdStringJNI.c_str_ptr(self), 0, rc, 0, rc.length);
-        return rc;
-    }
+  }
 }

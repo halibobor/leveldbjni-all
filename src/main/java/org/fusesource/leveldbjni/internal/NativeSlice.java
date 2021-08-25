@@ -6,7 +6,7 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above
@@ -16,7 +16,7 @@
  *    * Neither the name of FuseSource Corp. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,132 +29,138 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package org.fusesource.leveldbjni.internal;
 
-import org.fusesource.hawtjni.runtime.*;
-
-import static org.fusesource.hawtjni.runtime.ArgFlag.*;
+import static org.fusesource.hawtjni.runtime.ArgFlag.CRITICAL;
+import static org.fusesource.hawtjni.runtime.ArgFlag.NO_IN;
+import static org.fusesource.hawtjni.runtime.ArgFlag.NO_OUT;
 import static org.fusesource.hawtjni.runtime.ClassFlag.CPP;
 import static org.fusesource.hawtjni.runtime.ClassFlag.STRUCT;
 import static org.fusesource.hawtjni.runtime.FieldFlag.CONSTANT;
 import static org.fusesource.hawtjni.runtime.MethodFlag.CONSTANT_INITIALIZER;
 import static org.fusesource.hawtjni.runtime.MethodFlag.CPP_DELETE;
 
+import org.fusesource.hawtjni.runtime.JniArg;
+import org.fusesource.hawtjni.runtime.JniClass;
+import org.fusesource.hawtjni.runtime.JniField;
+import org.fusesource.hawtjni.runtime.JniMethod;
+import org.fusesource.hawtjni.runtime.PointerMath;
+
 /**
  * Provides a java interface to the C++ leveldb::Slice class.
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-@JniClass(name="leveldb::Slice", flags={STRUCT, CPP})
+@JniClass(name = "leveldb::Slice", flags = {STRUCT, CPP})
 class NativeSlice {
 
-    @JniClass(name="leveldb::Slice", flags={CPP})
-    static class SliceJNI {
-        static {
-            NativeDB.LIBRARY.load();
-            init();
-        }
+  @JniField(cast = "const char*")
+  private long data_;
+  @JniField(cast = "size_t")
+  private long size_;
 
-        @JniMethod(flags={CPP_DELETE})
-        public static final native void delete(
-                long self
-                );
+  public NativeSlice() {
+  }
 
-        public static final native void memmove (
-                @JniArg(cast="void *") long dest,
-                @JniArg(cast="const void *", flags={NO_OUT, CRITICAL}) NativeSlice src,
-                @JniArg(cast="size_t") long size);
+  public NativeSlice(long data, long length) {
+    this.data_ = data;
+    this.size_ = length;
+  }
 
-        public static final native void memmove (
-                @JniArg(cast="void *", flags={NO_IN, CRITICAL}) NativeSlice dest,
-                @JniArg(cast="const void *") long src,
-                @JniArg(cast="size_t") long size);
+  public NativeSlice(NativeBuffer buffer) {
+    this(buffer.pointer(), buffer.capacity());
+  }
 
-
-        @JniMethod(flags={CONSTANT_INITIALIZER})
-        private static final native void init();
-
-        @JniField(flags={CONSTANT}, accessor="sizeof(struct leveldb::Slice)")
-        static int SIZEOF;
-
+  public static NativeSlice create(NativeBuffer buffer) {
+    if (buffer == null) {
+      return null;
+    } else {
+      return new NativeSlice(buffer);
     }
-    
-    
-    @JniField(cast="const char*")
-    private long data_;
-    @JniField(cast="size_t")
-    private long size_;
+  }
 
-    public NativeSlice() {
-    }
+  static NativeBuffer arrayCreate(int dimension) {
+    return NativeBuffer.create(dimension * SliceJNI.SIZEOF);
+  }
 
-    public NativeSlice(long data, long length) {
-        this.data_ = data;
-        this.size_ = length;
-    }
+  public long data() {
+    return data_;
+  }
 
-    public NativeSlice(NativeBuffer buffer) {
-        this(buffer.pointer(), buffer.capacity());
-    }
+  public NativeSlice data(long data) {
+    this.data_ = data;
+    return this;
+  }
 
-    public static NativeSlice create(NativeBuffer buffer) {
-        if(buffer == null ) {
-            return null;
-        } else {
-            return new NativeSlice(buffer);
-        }
-    }
+  public long size() {
+    return size_;
+  }
 
-    public long data() {
-        return data_;
-    }
+  public NativeSlice size(long size) {
+    this.size_ = size;
+    return this;
+  }
 
-    public NativeSlice data(long data) {
-        this.data_ = data;
-        return this;
-    }
+  public NativeSlice set(NativeSlice buffer) {
+    this.size_ = buffer.size_;
+    this.data_ = buffer.data_;
+    return this;
+  }
 
-    public long size() {
-        return size_;
-    }
+  public NativeSlice set(NativeBuffer buffer) {
+    this.size_ = buffer.capacity();
+    this.data_ = buffer.pointer();
+    return this;
+  }
 
-    public NativeSlice size(long size) {
-        this.size_ = size;
-        return this;
+  public byte[] toByteArray() {
+    if (size_ > Integer.MAX_VALUE) {
+      throw new ArrayIndexOutOfBoundsException(
+          "Native slice is larger than the maximum Java array");
     }
+    byte[] rc = new byte[(int) size_];
+    NativeBuffer.NativeBufferJNI.buffer_copy(data_, 0, rc, 0, rc.length);
+    return rc;
+  }
 
-    public NativeSlice set(NativeSlice buffer) {
-        this.size_ = buffer.size_;
-        this.data_ = buffer.data_;
-        return this;
-    }
+  void write(long buffer, int index) {
+    SliceJNI.memmove(PointerMath.add(buffer, SliceJNI.SIZEOF * index), this, SliceJNI.SIZEOF);
+  }
 
-    public NativeSlice set(NativeBuffer buffer) {
-        this.size_ = buffer.capacity();
-        this.data_ = buffer.pointer();
-        return this;
-    }
+  void read(long buffer, int index) {
+    SliceJNI.memmove(this, PointerMath.add(buffer, SliceJNI.SIZEOF * index), SliceJNI.SIZEOF);
+  }
 
-    public byte[] toByteArray() {
-        if( size_ > Integer.MAX_VALUE ) {
-            throw new ArrayIndexOutOfBoundsException("Native slice is larger than the maximum Java array");
-        }
-        byte []rc = new byte[(int) size_];
-        NativeBuffer.NativeBufferJNI.buffer_copy(data_, 0, rc, 0, rc.length);
-        return rc;
-    }
-    
-    static NativeBuffer arrayCreate(int dimension) {
-        return NativeBuffer.create(dimension*SliceJNI.SIZEOF);
+  @JniClass(name = "leveldb::Slice", flags = {CPP})
+  static class SliceJNI {
+    @JniField(flags = {CONSTANT}, accessor = "sizeof(struct leveldb::Slice)")
+    static int SIZEOF;
+
+    static {
+      NativeDB.LIBRARY.load();
+      init();
     }
 
-    void write(long buffer, int index) {
-        SliceJNI.memmove(PointerMath.add(buffer, SliceJNI.SIZEOF*index), this, SliceJNI.SIZEOF);
-    }
+    @JniMethod(flags = {CPP_DELETE})
+    public static final native void delete(
+        long self
+    );
 
-    void read(long buffer, int index) {
-        SliceJNI.memmove(this, PointerMath.add(buffer, SliceJNI.SIZEOF*index), SliceJNI.SIZEOF);
-    }
-    
+    public static final native void memmove(
+        @JniArg(cast = "void *") long dest,
+        @JniArg(cast = "const void *", flags = {NO_OUT, CRITICAL}) NativeSlice src,
+        @JniArg(cast = "size_t") long size);
+
+    public static final native void memmove(
+        @JniArg(cast = "void *", flags = {NO_IN, CRITICAL}) NativeSlice dest,
+        @JniArg(cast = "const void *") long src,
+        @JniArg(cast = "size_t") long size);
+
+    @JniMethod(flags = {CONSTANT_INITIALIZER})
+    private static final native void init();
+
+  }
+
 
 }

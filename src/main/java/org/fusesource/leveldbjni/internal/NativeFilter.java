@@ -29,6 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package org.fusesource.leveldbjni.internal;
 
 import static org.fusesource.hawtjni.runtime.ClassFlag.CPP;
@@ -45,28 +46,31 @@ import org.fusesource.hawtjni.runtime.JniMethod;
  */
 public class NativeFilter extends NativeObject {
 
-    @JniClass(name="leveldb::FilterPolicy", flags={CPP})
-    private static class FilterPolicyJNI {
-        static {
-            NativeDB.LIBRARY.load();
-        }
+  public NativeFilter(int bitsPerKey) {
+    super(FilterPolicyJNI.NewBloomFilterPolicy(bitsPerKey));
+  }
 
-        @JniMethod(cast="const leveldb::FilterPolicy *", accessor="leveldb::NewBloomFilterPolicy")
-        public static final native long NewBloomFilterPolicy(
-                @JniArg(cast="int") int bits_per_key);
+  /**
+   * delete jni object.
+   */
+  public void delete() {
+    assertAllocated();
+    FilterPolicyJNI.delete(self);
+    self = 0;
+  }
 
-        @JniMethod(flags={CPP_DELETE})
-        public static final native void delete(long self);
+  @JniClass(name = "leveldb::FilterPolicy", flags = {CPP})
+  private static class FilterPolicyJNI {
+    static {
+      NativeDB.LIBRARY.load();
     }
 
-    public NativeFilter(int bitsPerKey) {
-        super(FilterPolicyJNI.NewBloomFilterPolicy(bitsPerKey));
-    }
+    @JniMethod(cast = "const leveldb::FilterPolicy *", accessor = "leveldb::NewBloomFilterPolicy")
+    public static final native long NewBloomFilterPolicy(
+        @JniArg(cast = "int") int bits_per_key);
 
-    public void delete() {
-        assertAllocated();
-        FilterPolicyJNI.delete(self);
-        self = 0;
-    }
+    @JniMethod(flags = {CPP_DELETE})
+    public static final native void delete(long self);
+  }
 
 }

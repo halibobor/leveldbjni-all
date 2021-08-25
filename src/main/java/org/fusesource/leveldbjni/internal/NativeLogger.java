@@ -6,7 +6,7 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above
@@ -16,7 +16,7 @@
  *    * Neither the name of FuseSource Corp. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,12 +29,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.fusesource.leveldbjni.internal;
 
-import org.fusesource.hawtjni.runtime.JniArg;
-import org.fusesource.hawtjni.runtime.JniClass;
-import org.fusesource.hawtjni.runtime.JniField;
-import org.fusesource.hawtjni.runtime.JniMethod;
+package org.fusesource.leveldbjni.internal;
 
 import static org.fusesource.hawtjni.runtime.ArgFlag.CRITICAL;
 import static org.fusesource.hawtjni.runtime.ArgFlag.NO_OUT;
@@ -42,7 +38,14 @@ import static org.fusesource.hawtjni.runtime.ClassFlag.CPP;
 import static org.fusesource.hawtjni.runtime.ClassFlag.STRUCT;
 import static org.fusesource.hawtjni.runtime.FieldFlag.CONSTANT;
 import static org.fusesource.hawtjni.runtime.FieldFlag.POINTER_FIELD;
-import static org.fusesource.hawtjni.runtime.MethodFlag.*;
+import static org.fusesource.hawtjni.runtime.MethodFlag.CONSTANT_INITIALIZER;
+import static org.fusesource.hawtjni.runtime.MethodFlag.CPP_DELETE;
+import static org.fusesource.hawtjni.runtime.MethodFlag.CPP_NEW;
+
+import org.fusesource.hawtjni.runtime.JniArg;
+import org.fusesource.hawtjni.runtime.JniClass;
+import org.fusesource.hawtjni.runtime.JniField;
+import org.fusesource.hawtjni.runtime.JniMethod;
 
 /**
  * <p>
@@ -53,74 +56,74 @@ import static org.fusesource.hawtjni.runtime.MethodFlag.*;
  */
 public abstract class NativeLogger extends NativeObject {
 
-    @JniClass(name="JNILogger", flags={STRUCT, CPP})
-    static public class LoggerJNI {
+  private long globalRef;
 
-        static {
-            NativeDB.LIBRARY.load();
-            init();
-        }
+  public NativeLogger() {
+    super(LoggerJNI.create());
+    try {
+      globalRef = NativeDB.DBJNI.NewGlobalRef(this);
+      if (globalRef == 0) {
+        throw new RuntimeException("jni call failed: NewGlobalRef");
+      }
+      LoggerJNI struct = new LoggerJNI();
+      struct.log_method =
+          NativeDB.DBJNI.GetMethodID(this.getClass(), "log", "(Ljava/lang/String;)V");
+      if (struct.log_method == 0) {
+        throw new RuntimeException("jni call failed: GetMethodID");
+      }
+      struct.target = globalRef;
+      LoggerJNI.memmove(self, struct, LoggerJNI.SIZEOF);
 
-        @JniMethod(flags={CPP_NEW})
-        public static final native long create();
+    } catch (RuntimeException e) {
+      delete();
+      throw e;
+    }
+  }
 
-        @JniMethod(flags={CPP_DELETE})
-        public static final native void delete(
-                long self
-                );
+  NativeLogger(long ptr) {
+    super(ptr);
+  }
 
-        public static final native void memmove (
-                @JniArg(cast="void *") long dest,
-                @JniArg(cast="const void *", flags={NO_OUT, CRITICAL}) LoggerJNI src,
-                @JniArg(cast="size_t") long size);
+  public void delete() {
+    if (globalRef != 0) {
+      NativeDB.DBJNI.DeleteGlobalRef(globalRef);
+      globalRef = 0;
+    }
+  }
 
-        @JniField(cast="jobject", flags={POINTER_FIELD})
-        long target;
+  public abstract void log(String message);
 
-        @JniField(cast="jmethodID", flags={POINTER_FIELD})
-        long log_method;
+  @JniClass(name = "JNILogger", flags = {STRUCT, CPP})
+  public static  class LoggerJNI {
 
-        @JniMethod(flags={CONSTANT_INITIALIZER})
-        private static final native void init();
+    @JniField(flags = {CONSTANT}, accessor = "sizeof(struct JNILogger)")
+    static int SIZEOF;
 
-        @JniField(flags={CONSTANT}, accessor="sizeof(struct JNILogger)")
-        static int SIZEOF;
+    static {
+      NativeDB.LIBRARY.load();
+      init();
     }
 
-    private long globalRef;
+    @JniField(cast = "jobject", flags = {POINTER_FIELD})
+    long target;
+    @JniField(cast = "jmethodID", flags = {POINTER_FIELD})
+    long log_method;
 
-    public NativeLogger() {
-        super(LoggerJNI.create());
-        try {
-            globalRef = NativeDB.DBJNI.NewGlobalRef(this);
-            if( globalRef==0 ) {
-                throw new RuntimeException("jni call failed: NewGlobalRef");
-            }
-            LoggerJNI struct = new LoggerJNI();
-            struct.log_method = NativeDB.DBJNI.GetMethodID(this.getClass(), "log", "(Ljava/lang/String;)V");
-            if( struct.log_method ==0 ) {
-                throw new RuntimeException("jni call failed: GetMethodID");
-            }
-            struct.target = globalRef;
-            LoggerJNI.memmove(self, struct, LoggerJNI.SIZEOF);
+    @JniMethod(flags = {CPP_NEW})
+    public static final native long create();
 
-        } catch (RuntimeException e) {
-            delete();
-            throw e;
-        }
-    }
+    @JniMethod(flags = {CPP_DELETE})
+    public static final native void delete(
+        long self
+    );
 
-    NativeLogger(long ptr) {
-        super(ptr);
-    }
+    public static final native void memmove(
+        @JniArg(cast = "void *") long dest,
+        @JniArg(cast = "const void *", flags = {NO_OUT, CRITICAL}) LoggerJNI src,
+        @JniArg(cast = "size_t") long size);
 
-    public void delete() {
-        if( globalRef!=0 ) {
-            NativeDB.DBJNI.DeleteGlobalRef(globalRef);
-            globalRef = 0;
-        }
-    }
-
-    public abstract void log(String message);
+    @JniMethod(flags = {CONSTANT_INITIALIZER})
+    private static final native void init();
+  }
 
 }

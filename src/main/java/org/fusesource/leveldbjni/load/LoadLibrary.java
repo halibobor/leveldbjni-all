@@ -1,7 +1,6 @@
 package org.fusesource.leveldbjni.load;
 
 
-
 import java.io.File;
 import java.io.IOException;
 import java.security.AccessControlException;
@@ -18,14 +17,13 @@ public class LoadLibrary {
   //TODO
   private static final String LIB_STD_X86 = "/usr/lib/libstdc++.so.6.0.22";
   private static final String JAR_PATH_X86 = "/lib/linux32/libstdc++_6.0.22.so";
+  private static volatile boolean isLoaded = false;
 
   private LoadLibrary() {
     throw new AccessControlException("access deny");
   }
 
-  private static volatile boolean isLoaded = false;
-
-  public synchronized static void load() {
+  public static synchronized  void load() {
     if (!isLoaded) {
       try {
         if (OSinfo.isLinux() && OSinfo.isX64()) {
