@@ -14,6 +14,13 @@ This LevelDB JNI is based on [leveldb-1.23](https://github.com/halibobor/leveldb
 
 Maybe you need this [LevelDB JNI](https://github.com/fusesource/leveldbjni) ?
 
+### Strong Attention
+
+> NOTE: If you are using [org.fusesource.leveldbjni/leveldbjni-all/1.8](https://mvnrepository.com/artifact/org.fusesource.leveldbjni/leveldbjni-all/1.8)
+> Here's what you need to know this jni:
+> * ``suspendCompactions`` and ``resumeCompactions`` are no longer supported.
+> * ``DBIterator.pre()`` is kept the same as ``RocksIterator.pre()``  with the [changes](https://github.com/halibobor/leveldbjni-all/commit/e1310d31c58b864be5f3d4f3599735a7851ff9eb#diff-d5bf9d55ca03b6e3938bfe84f2201382273ba25a5eca4420281f5f45432aa8ec)
+
 ## Getting the JAR
 
 Just add the following jar to your java project:

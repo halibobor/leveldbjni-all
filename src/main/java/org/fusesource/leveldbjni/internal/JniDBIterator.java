@@ -75,19 +75,37 @@ public class JniDBIterator implements DBIterator {
     }
   }
 
+  /**
+   * Position at the first key in the source.  The iterator is Valid()
+   * after this call iff the source is not empty.
+   */
   public void seekToFirst() {
     iterator.seekToFirst();
   }
 
+  /**
+   *  Position at the last key in the source.  The iterator is
+   *  Valid() after this call iff the source is not empty.
+   */
   public void seekToLast() {
     iterator.seekToLast();
   }
 
+  /**
+   * An iterator is either positioned at a key/value pair, or
+  *  not valid.  This method returns true iff the iterator is valid.
+   */
   @Override
   public boolean Valid() {
     return iterator.isValid();
   }
 
+  /**
+   * the returned slice is valid only until the next modification of
+   * the iterator.
+   * REQUIRES: Valid()
+   * @return the key for the current entry.
+   */
   @Override
   public byte[] key() {
     try {
@@ -97,6 +115,12 @@ public class JniDBIterator implements DBIterator {
     }
   }
 
+  /**
+   *  the returned slice is valid only until the next modification of
+   *  the iterator.
+   *  REQUIRES: Valid()
+   * @return the value for the current entry.
+   */
   @Override
   public byte[] value() {
     try {
@@ -115,6 +139,12 @@ public class JniDBIterator implements DBIterator {
     return this.Valid();
   }
 
+  /**
+   * Moves to the next entry in the source.  After this call, Valid() is
+   * true iff the iterator was not positioned at the last entry in the source.
+   * REQUIRES: Valid()
+   * @return the current entry.
+   */
   public Map.Entry<byte[], byte[]> next() {
     Map.Entry<byte[], byte[]> rc = this.peekNext();
     try {
@@ -132,6 +162,13 @@ public class JniDBIterator implements DBIterator {
   public Map.Entry<byte[], byte[]> peekPrev() {
     return this.entry();
   }
+
+  /**
+   * Moves to the previous entry in the source.  After this call, Valid() is
+   * true iff the iterator was not positioned at the first entry in source.
+   * REQUIRES: Valid()
+   * @return the current entry.
+   */
 
   public Map.Entry<byte[], byte[]> prev() {
     try {
