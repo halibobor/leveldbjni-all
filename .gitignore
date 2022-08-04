@@ -34,3 +34,4 @@ target
 .classpath
 .settings
 eclipse-classes
+test-data
