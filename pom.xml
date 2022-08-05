@@ -50,7 +50,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hawtjni-version>1.18</hawtjni-version>
     <leveldb-api-version>v0.12.10</leveldb-api-version>
-    <junit-version>4.13.1</junit-version>
+    <junit-version>4.13.2</junit-version>
   </properties>
 
   <name>${project.artifactId}</name>
