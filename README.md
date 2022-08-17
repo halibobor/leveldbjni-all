@@ -10,7 +10,7 @@ that provides an ordered mapping from string keys to string values.
 
 ##  Declaration
 
-This LevelDB JNI is based on [leveldb-1.23](https://github.com/halibobor/leveldb/tree/leveldbjni/v1.23) and [snappy-1.1.8](https://github.com/halibobor/snappy/tree/leveldbjni/v1.1.8) .
+This LevelDB JNI is based on [leveldb-1.23](https://github.com/halibobor/leveldb/tree/leveldbjni/v1.23) and [snappy-1.1.9](https://github.com/halibobor/snappy/tree/leveldbjni/v1.1.9) .
 
 Maybe you need this [LevelDB JNI](https://github.com/fusesource/leveldbjni) ?
 
@@ -233,7 +233,7 @@ Using a memory pool to make native memory allocations more efficient:
 ### Prerequisites
 *  GNU compiler toolchain,gcc-c++
 *  JAVA(1.8+)，make sure the current session $JAVA_HOME is set.
-*  [cmake](https://cmake.org/download/)
+*  [cmake3.1+](https://cmake.org/download/)
 *  git
 *  maven3
 *  automake
@@ -249,10 +249,10 @@ Then download the snappy, leveldb, leveldbjni,leveldbjni-all project source code
 ```shell script
     git clone https://github.com/halibobor/snappy.git
     cd snappy
-    git checkout leveldbjni/v1.1.8
+    git checkout leveldbjni/v1.1.9
     git submodule update --init
     mkdir build
-    cd build && cmake ../ && make
+    cd build && cmake -DCMAKE_BUILD_TYPE=Release ../ && make
     make DESTDIR=/tmp install
 ```
     
