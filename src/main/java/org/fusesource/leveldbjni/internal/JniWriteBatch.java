@@ -49,16 +49,6 @@ public class JniWriteBatch implements WriteBatch {
     writeBatch.delete();
   }
 
-  @Override
-  public int getApproximateSize() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public int size() {
-    throw new UnsupportedOperationException();
-  }
-
   public WriteBatch put(byte[] key, byte[] value) {
     writeBatch.put(key, value);
     return this;
