@@ -63,7 +63,7 @@
       <version>${hawtjni-version}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.halibobo1205.leveldb-java</groupId>
+      <groupId>com.github.halibobor.leveldb-java</groupId>
       <artifactId>leveldb-api</artifactId>
       <version>${leveldb-api-version}</version>
     </dependency>
