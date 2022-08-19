@@ -24,11 +24,11 @@ Maybe you need this [LevelDB JNI](https://github.com/fusesource/leveldbjni) ?
 ## Getting the JAR
 
 Just add the following jar to your java project:
-[leveldbjni-all-v0.98.jar](https://jitpack.io/com/github/halibobo1205/leveldbjni-all/v0.98/leveldbjni-all-v0.98.jar)
+[leveldbjni-all-1.23.jar](https://jitpack.io/com/github/halibobor/leveldbjni-all/1.23/leveldbjni-all-1.23.jar)
 
 ## Using the Dependency 
 
-Please refer to [leveldbjni-all/v0.98](https://jitpack.io/#halibobo1205/leveldbjni-all/v0.98) 
+Please refer to [leveldbjni-all/1.23](https://jitpack.io/#halibobo1205/leveldbjni-all/1.23) 
 
 ## API Usage:
 
@@ -225,9 +225,9 @@ Using a memory pool to make native memory allocations more efficient:
  
  The following worked for me on:
  
-  * OS X Mojave with X Code 11
-  * OS X Monterey with X Code 13
-  * CentOS 7.4 (64 bit)
+  * OS X Mojave with X Code 11 (x86_64)
+  * OS X Monterey with X Code 13 (aarch64)
+  * CentOS  (x86_64 | i386 | aarch64)
   
      
 ### Prerequisites
@@ -237,7 +237,7 @@ Using a memory pool to make native memory allocations more efficient:
 *  git
 *  maven3
 *  automake
-*  autoconf
+*  [autoconf](https://github.com/asdf-vm/asdf-erlang/issues/195#issuecomment-815999279)
 *  pkg-configls (linux maybe required)
 *  libtool (linux maybe required)
 
