@@ -1,0 +1,12 @@
+[submodule "third_party/snappy"]
+	path = third_party/snappy
+	url = https://github.com/halibobor/snappy.git
+	branch = leveldbjni/v1.1.9
+[submodule "third_party/leveldb"]
+	path = third_party/leveldb
+	url = https://github.com/halibobor/leveldb.git
+	branch = leveldbjni/v1.23
+[submodule "third_party/leveldbjni"]
+	path = third_party/leveldbjni
+	url = https://github.com/halibobor/leveldbjni.git
+	branch = master
