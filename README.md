@@ -244,44 +244,52 @@ Using a memory pool to make native memory allocations more efficient:
 
 ### Build Procedure
 Then download the snappy, leveldb, leveldbjni,leveldbjni-all project source code.
+```shell script
+git clone https://github.com/halibobor/leveldbjni-all.git
+cd leveldbjni-all
+git submodule update --init --recursive
+cd third_party
+```
 
 #### 1. snappy
 ```shell script
-    git clone https://github.com/halibobor/snappy.git
     cd snappy
-    git checkout leveldbjni/v1.1.9
-    git submodule update --init
-    mkdir build
-    cd build && cmake -DCMAKE_BUILD_TYPE=Release ../ && make
-    make DESTDIR=/tmp install
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Release ../
+    make && make DESTDIR=/tmp install
+    cd ../../
 ```
     
 #### 2. leveldb
 ```shell script
-    git clone https://github.com/halibobor/leveldb.git
     cd leveldb
-    git checkout leveldbjni/v1.23
-    git submodule update --init
-    mkdir build
-    export LIBRARY_PATH=/tmp/usr/local/lib # export LIBRARY_PATH=/tmp/usr/local/lib64
+    export LIBRARY_PATH=/tmp/usr/local/lib
+    # export LIBRARY_PATH=/tmp/usr/local/lib64
     export CPLUS_INCLUDE_PATH=/tmp/usr/local/include
-    cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
+    ./db_test
+    ./db_bench
     make DESTDIR=/tmp install
+    cd ../../
 ```
     
 #### 3. leveldbjni
 ```shell script
-    git clone https://github.com/halibobor/leveldbjni.git
     cd leveldbjni
     export SNAPPY_HOME=/tmp/usr/local
     export LEVELDB_HOME=/tmp/usr/local
-    mvn clean install -P ${platform}
+    mvn clean package -P ${platform}
 ```
 Replace ${platform} with one of the following platform identifiers (depending on the platform your building on):
 
 * osx
 * linux32
 * linux64
+* linux64-aarch64
+* linux64-ppc64le
+* linux64-sunos64-amd64
+* linux64-sunos64-sparcv9
 * win32
 * win64
 * freebsd64
