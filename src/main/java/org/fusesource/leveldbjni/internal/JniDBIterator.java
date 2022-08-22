@@ -33,6 +33,7 @@
 package org.fusesource.leveldbjni.internal;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.iq80.leveldb.DBIterator;
@@ -66,6 +67,36 @@ public class JniDBIterator implements DBIterator {
   public void seek(byte[] key) {
     try {
       iterator.seek(key);
+    } catch (NativeDB.DBException e) {
+      if (e.isNotFound()) {
+        throw new NoSuchElementException();
+      } else {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+  /**
+   * Seek to the last key that is less than or equal to the target key.
+   * @url https://github.com/facebook/rocksdb/wiki/SeekForPrev
+   * <pre>
+   *  Seek(target);
+   *  if (!Valid()) {
+   *    SeekToLast();
+   *  } else if (key() != target) {
+   *    Prev();
+   *  }
+   * <pre>
+   * @param key
+   */
+  public void seekForPrev(byte[] key) {
+    try {
+      iterator.seek(key);
+      if (!Valid()) {
+        iterator.seekToLast();
+      } else if (!Arrays.equals(iterator.key(), key)) {
+        iterator.prev();
+      }
     } catch (NativeDB.DBException e) {
       if (e.isNotFound()) {
         throw new NoSuchElementException();
@@ -132,11 +163,18 @@ public class JniDBIterator implements DBIterator {
 
 
   public Map.Entry<byte[], byte[]> peekNext() {
-    return this.entry();
+    if (!iterator.isValid()) {
+      throw new NoSuchElementException();
+    }
+    try {
+      return new AbstractMap.SimpleImmutableEntry<>(iterator.key(), iterator.value());
+    } catch (NativeDB.DBException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public boolean hasNext() {
-    return this.Valid();
+    return iterator.isValid();
   }
 
   /**
@@ -156,11 +194,39 @@ public class JniDBIterator implements DBIterator {
   }
 
   public boolean hasPrev() {
-    return this.Valid();
+    if (!iterator.isValid()) {
+      return false;
+    }
+    try {
+      iterator.prev();
+      try {
+        return iterator.isValid();
+      } finally {
+        if (iterator.isValid()) {
+          iterator.next();
+        } else {
+          iterator.seekToFirst();
+        }
+      }
+    } catch (NativeDB.DBException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public Map.Entry<byte[], byte[]> peekPrev() {
-    return this.entry();
+    try {
+      try {
+        return this.prev();
+      } finally {
+        if (iterator.isValid()) {
+          iterator.next();
+        } else {
+          iterator.seekToFirst();
+        }
+      }
+    } catch (NativeDB.DBException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -169,23 +235,13 @@ public class JniDBIterator implements DBIterator {
    * REQUIRES: Valid()
    * @return the current entry.
    */
-
   public Map.Entry<byte[], byte[]> prev() {
-    try {
-      Map.Entry<byte[], byte[]> rc = this.peekPrev();
-      iterator.prev();
-      return rc;
-    } catch (NativeDB.DBException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private Map.Entry<byte[], byte[]> entry() {
     if (!iterator.isValid()) {
       throw new NoSuchElementException();
     }
     try {
-      return new AbstractMap.SimpleImmutableEntry<>(iterator.key(), iterator.value());
+      iterator.prev();
+      return this.peekNext();
     } catch (NativeDB.DBException e) {
       throw new RuntimeException(e);
     }

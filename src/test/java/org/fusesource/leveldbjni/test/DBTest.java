@@ -655,9 +655,18 @@ public class DBTest extends TestCase {
         assertEquals(key_025, it.key());
         assertEquals(value_025, it.value());
 
+        it.seekForPrev(key_001);
+        assertFalse(it.hasNext());
+        assertFalse(it.hasPrev());
+
+
 
         it.seek(key_025);
         assertTrue(it.hasNext());
+        assertEquals(key_025, it.key());
+        assertEquals(value_025, it.value());
+
+        it.seekForPrev(key_025);
         assertEquals(key_025, it.key());
         assertEquals(value_025, it.value());
 
@@ -666,24 +675,43 @@ public class DBTest extends TestCase {
         assertEquals(key_050, it.key());
         assertEquals(value_050, it.value());
 
+        it.seekForPrev(key_050);
+        assertEquals(key_050, it.key());
+        assertEquals(value_050, it.value());
+
         it.seek(key_055);
         assertTrue(it.hasNext());
         assertEquals(key_075, it.key());
         assertEquals(value_075, it.value());
+
+        it.seekForPrev(key_055);
+        assertEquals(key_050, it.key());
+        assertEquals(value_050, it.value());
 
         it.seek(key_065);
         assertTrue(it.hasNext());
         assertEquals(key_075, it.key());
         assertEquals(value_075, it.value());
 
+        it.seekForPrev(key_065);
+        assertEquals(key_050, it.key());
+        assertEquals(value_050, it.value());
+
         it.seek(key_075);
         assertTrue(it.hasNext());
+        assertEquals(key_075, it.key());
+        assertEquals(value_075, it.value());
+
+        it.seekForPrev(key_075);
         assertEquals(key_075, it.key());
         assertEquals(value_075, it.value());
 
         it.seek(key_100);
         assertFalse(it.hasNext());
 
+        it.seekForPrev(key_100);
+        assertEquals(key_075, it.key());
+        assertEquals(value_075, it.value());
         //
         // check next:
         //
@@ -768,9 +796,9 @@ public class DBTest extends TestCase {
         // check hasPrev
         //
         it.seek(key_001);
-        assertTrue(it.hasPrev());
+        assertFalse(it.hasPrev());
         it.seek(key_025);
-        assertTrue(it.hasPrev());
+        assertFalse(it.hasPrev());
         it.seek(key_050);
         assertTrue(it.hasPrev());
         it.seek(key_055);
@@ -783,24 +811,24 @@ public class DBTest extends TestCase {
         //
         // check prev:
         //
-        it.seekToFirst();
+        it.seek(key_001);
         try {
-            it.prev(); // return head point to null
-            assertFalse(it.Valid());
             it.prev();
             fail("NoSuchElementException is expected");
         } catch (NoSuchElementException ex) {
         }
 
         it.seek(key_025);
+        try {
+            it.prev();
+            fail("NoSuchElementException is expected");
+        } catch (NoSuchElementException ex) {
+        }
+
+        it.seek(key_050);
         entry = it.prev();
         assertEquals(key_025, entry.getKey());
         assertEquals(value_025, entry.getValue());
-
-        it.seek(key_050);
-        it.prev();
-        assertEquals(key_025, it.key());
-        assertEquals(value_025, it.value());
 
         it.seek(key_055);
         it.prev();
@@ -809,15 +837,13 @@ public class DBTest extends TestCase {
 
         it.seek(key_065);
         entry = it.prev();
-        assertEquals(key_075, entry.getKey());
-        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
 
         it.seek(key_075);
         entry = it.prev();
-        assertEquals(key_050, it.key());
-        assertEquals(value_050, it.value());
-        assertEquals(key_075, entry.getKey());
-        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
 
         it.seek(key_100);
         try {
@@ -830,35 +856,43 @@ public class DBTest extends TestCase {
         // check peekPrev:
         //
         it.seek(key_001);
-        entry = it.peekPrev();
-        assertEquals(key_025, entry.getKey());
-        assertEquals(value_025, entry.getValue());
+        try {
+            it.peekPrev();
+            fail("NoSuchElementException is expected");
+        } catch (NoSuchElementException ex) {
+        }
 
         it.seek(key_025);
+        try {
+            it.peekPrev();
+            fail("NoSuchElementException is expected");
+        } catch (NoSuchElementException ex) {
+        }
+
+        it.seek(key_050);
         entry = it.peekPrev();
         assertEquals(key_025, entry.getKey());
         assertEquals(value_025, entry.getValue());
 
-
-        it.seek(key_050);
+        it.seek(key_075);
         entry = it.peekPrev();
         assertEquals(key_050, entry.getKey());
         assertEquals(value_050, entry.getValue());
 
         it.seek(key_055);
         entry = it.peekPrev();
-        assertEquals(key_075, entry.getKey());
-        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
 
         it.seek(key_065);
         entry = it.peekPrev();
-        assertEquals(key_075, entry.getKey());
-        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
 
         it.seek(key_075);
         entry = it.peekPrev();
-        assertEquals(key_075, entry.getKey());
-        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
 
         it.seek(key_100);
         try {
@@ -923,19 +957,18 @@ public class DBTest extends TestCase {
         //
         it.seekToLast();
         entry = it.prev();
-        assertEquals(key_075, entry.getKey());
-        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
         assertEquals(key_050, it.key());
         assertEquals(value_050, it.value());
 
         entry = it.prev();
-        assertEquals(key_050, entry.getKey());
-        assertEquals(value_050, entry.getValue());
+        assertEquals(key_025, entry.getKey());
+        assertEquals(value_025, entry.getValue());
         assertEquals(key_025, it.key());
         assertEquals(value_025, it.value());
 
         try {
-            it.prev(); // return head ,point to null
             it.prev();
             fail("NoSuchElementException is expected");
         } catch (NoSuchElementException ex) {
@@ -981,16 +1014,18 @@ public class DBTest extends TestCase {
         System.out.println();
 
         iterable3.seekToLast();
-        while (iterable3.Valid()) {
+        System.out.println("iterable3:" + fromByteArray(iterable3.peekNext().getKey()));
+        while (iterable3.hasPrev()) {
             System.out.println("iterable3:" + fromByteArray(iterable3.prev().getKey()));
         }
 
         System.out.println();
-        for (iterable4.seekToLast(); iterable4.Valid(); iterable4.prev()) {
+        for (iterable4.seekToLast(); iterable4.hasPrev(); iterable4.prev()) {
             byte[] key = iterable4.key();
             System.out.println("iterable4:" + fromByteArray(key));
 
         }
+        System.out.println("iterable4:" + fromByteArray(iterable4.peekNext().getKey()));
         iterable.close();
         iterable2.close();
         iterable3.close();
@@ -1014,7 +1049,7 @@ public class DBTest extends TestCase {
         Options options = new Options().createIfMissing(true).maxFileSize(4 * 1024 * 1024);
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 10000; i++) {
             byte[] bytes = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
             db.put(bytes, bytes);
         }
