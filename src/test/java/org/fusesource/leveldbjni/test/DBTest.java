@@ -796,9 +796,9 @@ public class DBTest extends TestCase {
         // check hasPrev
         //
         it.seek(key_001);
-        assertFalse(it.hasPrev());
+        assertTrue(it.hasPrev());
         it.seek(key_025);
-        assertFalse(it.hasPrev());
+        assertTrue(it.hasPrev());
         it.seek(key_050);
         assertTrue(it.hasPrev());
         it.seek(key_055);
@@ -807,11 +807,16 @@ public class DBTest extends TestCase {
         assertTrue(it.hasPrev());
         it.seek(key_100);
         assertFalse(it.hasPrev()); // TODO: Expected result?
-
+        it.seekForPrev(key_100);
+        assertTrue(it.hasPrev());
         //
         // check prev:
         //
         it.seek(key_001);
+        entry = it.prev();
+        assertEquals(key_025, entry.getKey());
+        assertEquals(value_025, entry.getValue());
+
         try {
             it.prev();
             fail("NoSuchElementException is expected");
@@ -819,6 +824,9 @@ public class DBTest extends TestCase {
         }
 
         it.seek(key_025);
+        entry = it.prev();
+        assertEquals(key_025, entry.getKey());
+        assertEquals(value_025, entry.getValue());
         try {
             it.prev();
             fail("NoSuchElementException is expected");
@@ -827,23 +835,45 @@ public class DBTest extends TestCase {
 
         it.seek(key_050);
         entry = it.prev();
-        assertEquals(key_025, entry.getKey());
-        assertEquals(value_025, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
+        assertEquals(key_025, it.key());
+        assertEquals(value_025, it.value());
 
         it.seek(key_055);
-        it.prev();
+        entry = it.prev();
+        assertEquals(key_075, entry.getKey());
+        assertEquals(value_075, entry.getValue());
         assertEquals(key_050, it.key());
         assertEquals(value_050, it.value());
 
-        it.seek(key_065);
+        it.seekForPrev(key_055);
         entry = it.prev();
         assertEquals(key_050, entry.getKey());
         assertEquals(value_050, entry.getValue());
+        assertEquals(key_025, it.key());
+        assertEquals(value_025, it.value());
+
+        it.seek(key_065);
+        entry = it.prev();
+        assertEquals(key_075, entry.getKey());
+        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, it.key());
+        assertEquals(value_050, it.value());
+
+        it.seekForPrev(key_065);
+        entry = it.prev();
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
+        assertEquals(key_025, it.key());
+        assertEquals(value_025, it.value());
 
         it.seek(key_075);
         entry = it.prev();
-        assertEquals(key_050, entry.getKey());
-        assertEquals(value_050, entry.getValue());
+        assertEquals(key_075, entry.getKey());
+        assertEquals(value_075, entry.getValue());
+        assertEquals(key_050, it.key());
+        assertEquals(value_050, it.value());
 
         it.seek(key_100);
         try {
@@ -856,43 +886,37 @@ public class DBTest extends TestCase {
         // check peekPrev:
         //
         it.seek(key_001);
-        try {
-            it.peekPrev();
-            fail("NoSuchElementException is expected");
-        } catch (NoSuchElementException ex) {
-        }
+        it.peekPrev();
+
 
         it.seek(key_025);
-        try {
-            it.peekPrev();
-            fail("NoSuchElementException is expected");
-        } catch (NoSuchElementException ex) {
-        }
+        it.peekPrev();
+
 
         it.seek(key_050);
         entry = it.peekPrev();
-        assertEquals(key_025, entry.getKey());
-        assertEquals(value_025, entry.getValue());
-
-        it.seek(key_075);
-        entry = it.peekPrev();
-        assertEquals(key_050, entry.getKey());
-        assertEquals(value_050, entry.getValue());
-
-        it.seek(key_055);
-        entry = it.peekPrev();
-        assertEquals(key_050, entry.getKey());
-        assertEquals(value_050, entry.getValue());
-
-        it.seek(key_065);
-        entry = it.peekPrev();
         assertEquals(key_050, entry.getKey());
         assertEquals(value_050, entry.getValue());
 
         it.seek(key_075);
         entry = it.peekPrev();
+        assertEquals(key_075, entry.getKey());
+        assertEquals(value_075, entry.getValue());
+
+        it.seekForPrev(key_055);
+        entry = it.peekPrev();
         assertEquals(key_050, entry.getKey());
         assertEquals(value_050, entry.getValue());
+
+        it.seekForPrev(key_065);
+        entry = it.peekPrev();
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
+
+        it.seekForPrev(key_075);
+        entry = it.peekPrev();
+        assertEquals(key_075, entry.getKey());
+        assertEquals(value_075, entry.getValue());
 
         it.seek(key_100);
         try {
@@ -957,16 +981,20 @@ public class DBTest extends TestCase {
         //
         it.seekToLast();
         entry = it.prev();
-        assertEquals(key_050, entry.getKey());
-        assertEquals(value_050, entry.getValue());
+        assertEquals(key_075, entry.getKey());
+        assertEquals(value_075, entry.getValue());
         assertEquals(key_050, it.key());
         assertEquals(value_050, it.value());
 
         entry = it.prev();
-        assertEquals(key_025, entry.getKey());
-        assertEquals(value_025, entry.getValue());
+        assertEquals(key_050, entry.getKey());
+        assertEquals(value_050, entry.getValue());
         assertEquals(key_025, it.key());
         assertEquals(value_025, it.value());
+
+        entry = it.prev();
+        assertEquals(key_025, entry.getKey());
+        assertEquals(value_025, entry.getValue());
 
         try {
             it.prev();
@@ -1014,7 +1042,6 @@ public class DBTest extends TestCase {
         System.out.println();
 
         iterable3.seekToLast();
-        System.out.println("iterable3:" + fromByteArray(iterable3.peekNext().getKey()));
         while (iterable3.hasPrev()) {
             System.out.println("iterable3:" + fromByteArray(iterable3.prev().getKey()));
         }
@@ -1025,7 +1052,6 @@ public class DBTest extends TestCase {
             System.out.println("iterable4:" + fromByteArray(key));
 
         }
-        System.out.println("iterable4:" + fromByteArray(iterable4.peekNext().getKey()));
         iterable.close();
         iterable2.close();
         iterable3.close();

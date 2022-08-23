@@ -61,7 +61,7 @@ public class JniDBIterator implements DBIterator {
    * Position at the first key in the source that is at or past target.
    * The iterator is Valid() after this call iff the source contains
    * an entry that comes at or past target.
-   *
+   * If key > max key, Valid() return false.
    * @param key
    */
   public void seek(byte[] key) {
@@ -161,7 +161,11 @@ public class JniDBIterator implements DBIterator {
     }
   }
 
-
+  /**
+   *
+   * @return the current entry.
+   */
+  @Deprecated
   public Map.Entry<byte[], byte[]> peekNext() {
     if (!iterator.isValid()) {
       throw new NoSuchElementException();
@@ -193,37 +197,26 @@ public class JniDBIterator implements DBIterator {
     return rc;
   }
 
+  /**
+   * Keep same as hasNext.
+   * Used in combination with pre().
+   * @return
+   */
   public boolean hasPrev() {
-    if (!iterator.isValid()) {
-      return false;
-    }
-    try {
-      iterator.prev();
-      try {
-        return iterator.isValid();
-      } finally {
-        if (iterator.isValid()) {
-          iterator.next();
-        } else {
-          iterator.seekToFirst();
-        }
-      }
-    } catch (NativeDB.DBException e) {
-      throw new RuntimeException(e);
-    }
+    return iterator.isValid();
   }
 
+  /**
+   * Keep same as peekNext
+   * @return the current entry.
+   */
+  @Deprecated
   public Map.Entry<byte[], byte[]> peekPrev() {
+    if (!iterator.isValid()) {
+      throw new NoSuchElementException();
+    }
     try {
-      try {
-        return this.prev();
-      } finally {
-        if (iterator.isValid()) {
-          iterator.next();
-        } else {
-          iterator.seekToFirst();
-        }
-      }
+      return new AbstractMap.SimpleImmutableEntry<>(iterator.key(), iterator.value());
     } catch (NativeDB.DBException e) {
       throw new RuntimeException(e);
     }
@@ -236,14 +229,12 @@ public class JniDBIterator implements DBIterator {
    * @return the current entry.
    */
   public Map.Entry<byte[], byte[]> prev() {
-    if (!iterator.isValid()) {
-      throw new NoSuchElementException();
-    }
+    Map.Entry<byte[], byte[]> rc = this.peekPrev();
     try {
       iterator.prev();
-      return this.peekNext();
     } catch (NativeDB.DBException e) {
       throw new RuntimeException(e);
     }
+    return rc;
   }
 }
