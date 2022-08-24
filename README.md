@@ -19,6 +19,7 @@ Maybe you need this [LevelDB JNI](https://github.com/fusesource/leveldbjni) ?
 > NOTE: If you are using [org.fusesource.leveldbjni/leveldbjni-all/1.8](https://mvnrepository.com/artifact/org.fusesource.leveldbjni/leveldbjni-all/1.8)
 > Here's what you need to know this jni:
 > * ``suspendCompactions`` and ``resumeCompactions`` are no longer supported.
+> * 1.23.1 +, iterator.prev() changed, see [change](https://github.com/halibobor/leveldbjni-all/commit/ca2b1b2575ce11b0c98c66a74520da56ad7a1eb1)
 
 ## Getting the JAR
 
@@ -82,9 +83,19 @@ Iterating key/values.
 ```java
     DBIterator iterator = db.iterator();
     try {
-      for(iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
-        String key = asString(iterator.peekNext().getKey());
-        String value = asString(iterator.peekNext().getValue());
+      for(iterator.seekToFirst(); iterator.Valid(); iterator.next()) {
+        String key = asString(iterator.key());
+        String value = asString(iterator.value());
+        System.out.println(key+" = "+value);
+      }
+    } finally {
+      // Make sure you close the iterator to avoid resource leaks.
+      iterator.close();
+    }
+    try {
+      for(iterator.seekToLast(); iterator.Valid(); iterator.prev()) {
+        String key = asString(iterator.key());
+        String value = asString(iterator.value());
         System.out.println(key+" = "+value);
       }
     } finally {
