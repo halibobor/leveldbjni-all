@@ -99,7 +99,7 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   * Position at the first key in the source.  The iterator is Valid()
+   * Position at the first key in the source.  The iterator is {@link #Valid()}
    * after this call iff the source is not empty.
    */
   public void seekToFirst() {
@@ -107,8 +107,8 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   *  Position at the last key in the source.  The iterator is
-   *  Valid() after this call iff the source is not empty.
+   *  Position at the last key in the source.  The iterator is {@link #Valid()}
+   *  after this call iff the source is not empty.
    */
   public void seekToLast() {
     iterator.seekToLast();
@@ -116,7 +116,7 @@ public class JniDBIterator implements DBIterator {
 
   /**
    * An iterator is either positioned at a key/value pair, or
-  *  not valid.  This method returns true iff the iterator is valid.
+   * not valid.  This method returns true iff the iterator is valid.
    */
   @Override
   public boolean Valid() {
@@ -124,10 +124,10 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   * the returned slice is valid only until the next modification of
+   * The returned slice is valid only until the next modification of
    * the iterator.
-   * REQUIRES: Valid()
-   * @return the key for the current entry.
+   * REQUIRES: {@link #Valid()}
+   * @return the key for the current entry
    */
   @Override
   public byte[] key() {
@@ -139,10 +139,10 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   *  the returned slice is valid only until the next modification of
-   *  the iterator.
-   *  REQUIRES: Valid()
-   * @return the value for the current entry.
+   * The returned slice is valid only until the next modification of
+   * the iterator.
+   * REQUIRES: {@link #Valid()}
+   * @return the value for the current entry
    */
   @Override
   public byte[] value() {
@@ -154,9 +154,10 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
+   * Keep same as {@link #peekPrev()}.
    * @see #key()
    * @see #value()
-   * @return the current entry.
+   * @return the current entry
    */
   @Deprecated
   public Map.Entry<byte[], byte[]> peekNext() {
@@ -175,10 +176,10 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   * Moves to the next entry in the source.  After this call, Valid() is
+   * Moves to the next entry in the source.  After this call, {@link #Valid()} is
    * true iff the iterator was not positioned at the last entry in the source.
-   * REQUIRES: Valid()
-   * @return the current entry.
+   * REQUIRES: {@link #Valid()}
+   * @return the current entry
    */
   public Map.Entry<byte[], byte[]> next() {
     Map.Entry<byte[], byte[]> rc = this.peekNext();
@@ -191,8 +192,8 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   * Keep same as hasNext.
-   * Used in combination with prev().
+   * Keep same as {@link #hasNext()}.
+   * Used in combination with {@link #seekToLast()},{@link #seekForPrev(byte[])},{@link #prev()}.
    * @return An iterator is either positioned at a key/value pair
    */
   public boolean hasPrev() {
@@ -200,10 +201,10 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   * Keep same as peekNext
+   * Keep same as {@link #peekNext()}.
    * @see #key()
    * @see #value()
-   * @return the current entry.
+   * @return the current entry
    */
   @Deprecated
   public Map.Entry<byte[], byte[]> peekPrev() {
@@ -218,10 +219,10 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   * Moves to the previous entry in the source.  After this call, Valid() is
+   * Moves to the previous entry in the source.  After this call, {@link #Valid()} is
    * true iff the iterator was not positioned at the first entry in source.
-   * REQUIRES: Valid()
-   * @return the current entry.
+   * REQUIRES: {@link #Valid()}
+   * @return the current entry
    */
   public Map.Entry<byte[], byte[]> prev() {
     Map.Entry<byte[], byte[]> rc = this.peekPrev();

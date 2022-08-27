@@ -24,7 +24,7 @@ Maybe you need this [LevelDB JNI](https://github.com/fusesource/leveldbjni) ?
 ## Getting the JAR
 
 Just add the following jar to your java project:
-[leveldbjni-all-1.23.1.jar](https://repo1.maven.org/maven2/io/github/halibobor/leveldbjni-all/1.23.1/leveldbjni-all-1.23.1.jar)
+[leveldbjni-all-1.23.1.jar](https://repo1.maven.org/maven2/com/halibobor/leveldbjni-all/1.23.1/leveldbjni-all-1.23.1.jar)
 
 ## Using the Dependency 
 
@@ -32,7 +32,7 @@ Just add the following jar to your java project:
 
 ```gradle
        dependencies {
-	        implementation 'io.github.halibobor:leveldbjni-all:1.23.'
+	        implementation 'com.halibobor:leveldbjni-all:1.23.1'
 	   }
 ```
 
@@ -40,7 +40,7 @@ Just add the following jar to your java project:
 
 ```maven
         <dependency>
-            <groupId>io.github.halibobor</groupId>
+            <groupId>com.halibobor</groupId>
             <artifactId>leveldbjni-all</artifactId>
             <version>1.23.1</version>
         </dependency>

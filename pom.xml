@@ -39,7 +39,7 @@
     <version>1.9</version>
   </parent>
 
-  <groupId>io.github.halibobor</groupId>
+  <groupId>com.halibobor</groupId>
   <artifactId>leveldbjni-all</artifactId>
   <version>1.23.1</version>
   <packaging>bundle</packaging>
@@ -65,7 +65,7 @@
       <version>${hawtjni-version}</version>
     </dependency>
     <dependency>
-      <groupId>io.github.halibobor</groupId>
+      <groupId>com.halibobor</groupId>
       <artifactId>leveldb-api</artifactId>
       <version>${leveldb-api-version}</version>
     </dependency>
