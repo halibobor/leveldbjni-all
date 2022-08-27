@@ -61,8 +61,8 @@ public class JniDBIterator implements DBIterator {
    * Position at the first key in the source that is at or past target.
    * The iterator is Valid() after this call iff the source contains
    * an entry that comes at or past target.
-   * If key > max key, Valid() return false.
-   * @param key
+   * If key larger than max key, Valid() return false.
+   * @param key target
    */
   public void seek(byte[] key) {
     try {
@@ -78,16 +78,8 @@ public class JniDBIterator implements DBIterator {
 
   /**
    * Seek to the last key that is less than or equal to the target key.
-   * @url https://github.com/facebook/rocksdb/wiki/SeekForPrev
-   * <pre>
-   *  Seek(target);
-   *  if (!Valid()) {
-   *    SeekToLast();
-   *  } else if (key() != target) {
-   *    Prev();
-   *  }
-   * <pre>
-   * @param key
+   * { @link <a href="https://github.com/facebook/rocksdb/wiki/SeekForPrev"></a> }
+   * @param key target
    */
   public void seekForPrev(byte[] key) {
     try {
@@ -162,7 +154,8 @@ public class JniDBIterator implements DBIterator {
   }
 
   /**
-   *
+   * @see #key()
+   * @see #value()
    * @return the current entry.
    */
   @Deprecated
@@ -199,8 +192,8 @@ public class JniDBIterator implements DBIterator {
 
   /**
    * Keep same as hasNext.
-   * Used in combination with pre().
-   * @return
+   * Used in combination with prev().
+   * @return An iterator is either positioned at a key/value pair
    */
   public boolean hasPrev() {
     return iterator.isValid();
@@ -208,6 +201,8 @@ public class JniDBIterator implements DBIterator {
 
   /**
    * Keep same as peekNext
+   * @see #key()
+   * @see #value()
    * @return the current entry.
    */
   @Deprecated

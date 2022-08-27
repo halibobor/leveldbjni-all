@@ -57,9 +57,9 @@ public class Util {
   /**
    * Creates a hard link from source to target.
    *
-   * @param source
-   * @param target
-   * @return
+   * @param source source file
+   * @param target target file
+   * @throws IOException if link failed
    */
   public static void link(File source, File target) throws IOException {
     if (UtilJNI.ON_WINDOWS == 1) {
