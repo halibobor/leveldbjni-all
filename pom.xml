@@ -49,7 +49,7 @@
     <forge-project-id-uc>LEVELDBJNI</forge-project-id-uc>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hawtjni-version>1.18</hawtjni-version>
-    <leveldb-api-version>1.23.1</leveldb-api-version>
+    <leveldb-api-version>1.23.2</leveldb-api-version>
     <junit-version>4.13.2</junit-version>
     <jacoco.version>0.8.8</jacoco.version>
     <gpg.keyname>0xEF7F2D6C</gpg.keyname>
@@ -57,6 +57,49 @@
 
   <name>${project.artifactId}</name>
   <description>An uber jar which contains all the leveldbjni platform libraries and dependencies</description>
+  <url>http://github.com/halibobor/leveldbjni-all</url>
+  <inceptionYear>2022</inceptionYear>
+
+  <organization>
+    <name>Halibobor, Corp.</name>
+    <url>http://halibobor.com/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:https://github.com/halibobor/leveldbjni-all.git</connection>
+    <developerConnection>scm:https://github.com/halibobor/leveldbjni-all.git</developerConnection>
+    <url>https://github.com/halibobor/leveldbjni-all/tree/master</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <!-- including A developer as it's required by the maven poms going into central -->
+  <developers>
+    <developer>
+      <id>geeks</id>
+      <name>FuseSource Development Team</name>
+      <organization>FuseSource</organization>
+      <organizationUrl>http://fusesource.com/</organizationUrl>
+    </developer>
+    <developer>
+      <id>halibobo</id>
+      <name>halibobo1205</name>
+      <organization>halibobor</organization>
+      <organizationUrl>http://halibobor.com/</organizationUrl>
+      <email>halibobo1205@gmail.com</email>
+      <roles>
+        <role>Developer</role>
+      </roles>
+      <timezone>+8</timezone>
+    </developer>
+  </developers>
 
   <dependencies>
     <dependency>
@@ -104,6 +147,7 @@
         <version>${jacoco.version}</version>
         <executions>
           <execution>
+            <id>prepare-agent</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
@@ -242,8 +286,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <configuration>
-              <source>1.8</source>
-              <target>1.8</target>
+              <source>8</source>
+              <target>8</target>
               <fork>true</fork>
               <verbose>true</verbose>
               <encoding>UTF-8</encoding>
