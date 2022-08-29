@@ -219,7 +219,16 @@ public class DBTest extends TestCase {
         batch.put(bytes("Tampa"), bytes("green"));
         batch.put(bytes("London"), bytes("red"));
         batch.put(bytes("New York"), bytes("blue"));
-        db.write(batch);
+        WriteBatch source = db.createWriteBatch();
+        source.append(batch);
+        source.append(batch);
+        db.write(source);
+        assertEquals( batch.approximateSize() * 2 - 12, source.approximateSize());
+        source.clear();
+        batch.clear();
+        assertEquals(source.approximateSize(), batch.approximateSize());
+        assertEquals(12, batch.approximateSize());
+        source.close();
         batch.close();
 
         ArrayList<String> expecting = new ArrayList<String>();

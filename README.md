@@ -258,15 +258,15 @@ Using a memory pool to make native memory allocations more efficient:
   
      
 ### Prerequisites
-*  GNU compiler toolchain,gcc-c++
-*  JAVA(1.8+)，make sure the current session $JAVA_HOME is set.
-*  [cmake3.1+](https://cmake.org/download/)
-*  git
-*  maven3
-*  automake
-*  [autoconf](https://github.com/asdf-vm/asdf-erlang/issues/195#issuecomment-815999279)
-*  pkg-configls (linux maybe required)
-*  libtool (linux maybe required)
+* GNU compiler toolchain,gcc-c++
+* openssl, openssl-devel(cmake required)
+* JAVA(1.8+)，make sure the current session $JAVA_HOME is set.
+* [cmake3.1+](https://cmake.org/download/)
+* git
+* maven3
+* automake
+* [autoconf](https://github.com/asdf-vm/asdf-erlang/issues/195#issuecomment-815999279)
+* pkg-configls,build-essential,libtool (linux maybe required)
 
 
 ### Build Procedure

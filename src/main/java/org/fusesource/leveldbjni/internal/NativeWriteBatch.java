@@ -109,6 +109,16 @@ public class NativeWriteBatch extends NativeObject {
     WriteBatchJNI.Clear(self);
   }
 
+  public long approximateSize() {
+    assertAllocated();
+    return WriteBatchJNI.ApproximateSize(self);
+  }
+
+  public void append(NativeWriteBatch source) {
+    assertAllocated();
+    WriteBatchJNI.Append(self, source.self);
+  }
+
   @JniClass(name = "leveldb::WriteBatch", flags = {CPP})
   private static class WriteBatchJNI {
     static {
@@ -140,6 +150,16 @@ public class NativeWriteBatch extends NativeObject {
         long self
     );
 
+    @JniMethod(flags = {CPP_METHOD})
+    public static final native long ApproximateSize(
+        long self
+    );
+
+    @JniMethod(flags = {CPP_METHOD})
+    static final native void Append(
+        long self,
+        @JniArg(cast = "const leveldb::WriteBatch *") long source
+    );
   }
 
 }

@@ -59,6 +59,27 @@ public class JniWriteBatch implements WriteBatch {
     return this;
   }
 
+  @Override
+  public WriteBatch clear() {
+    writeBatch.clear();
+    return this;
+  }
+
+  @Override
+  public long approximateSize() {
+    return writeBatch.approximateSize();
+  }
+
+  @Override
+  public WriteBatch append(WriteBatch source) {
+    if (source instanceof JniWriteBatch) {
+      writeBatch.append(((JniWriteBatch) source).writeBatch);
+    } else {
+      throw new UnsupportedOperationException();
+    }
+    return this;
+  }
+
   public NativeWriteBatch writeBatch() {
     return writeBatch;
   }
