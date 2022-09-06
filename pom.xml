@@ -41,7 +41,7 @@
 
   <groupId>com.halibobor</groupId>
   <artifactId>leveldbjni-all</artifactId>
-  <version>1.23.1</version>
+  <version>1.23.2</version>
   <packaging>bundle</packaging>
 
   <properties>
