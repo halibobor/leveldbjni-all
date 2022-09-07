@@ -57,7 +57,7 @@
 
   <name>${project.artifactId}</name>
   <description>An uber jar which contains all the leveldbjni platform libraries and dependencies</description>
-  <url>http://github.com/halibobor/leveldbjni-all</url>
+  <url>https://github.com/halibobor/leveldbjni-all</url>
   <inceptionYear>2022</inceptionYear>
 
   <organization>

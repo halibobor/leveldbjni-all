@@ -78,7 +78,7 @@ public class JniDBIterator implements DBIterator {
 
   /**
    * Seek to the last key that is less than or equal to the target key.
-   * { @link <a href="https://github.com/facebook/rocksdb/wiki/SeekForPrev"></a> }
+   * { @link <a href="https://github.com/facebook/rocksdb/wiki/SeekForPrev">SeekForPrev</a> }
    * @param key target
    */
   public void seekForPrev(byte[] key) {
