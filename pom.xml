@@ -41,7 +41,7 @@
 
   <groupId>com.halibobor</groupId>
   <artifactId>leveldbjni-all</artifactId>
-  <version>1.23.2</version>
+  <version>1.18.1</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -49,7 +49,8 @@
     <forge-project-id-uc>LEVELDBJNI</forge-project-id-uc>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hawtjni-version>1.18</hawtjni-version>
-    <leveldb-api-version>1.23.2</leveldb-api-version>
+    <leveldb-api-version>0.6</leveldb-api-version>
+    <leveldbjni-version>1.8</leveldbjni-version>
     <junit-version>4.13.2</junit-version>
     <jacoco.version>0.8.8</jacoco.version>
     <gpg.keyname>0xEF7F2D6C</gpg.keyname>
@@ -108,9 +109,15 @@
       <version>${hawtjni-version}</version>
     </dependency>
     <dependency>
-      <groupId>com.halibobor</groupId>
-      <artifactId>leveldb-api</artifactId>
-      <version>${leveldb-api-version}</version>
+      <groupId>org.fusesource.leveldbjni</groupId>
+      <artifactId>leveldbjni</artifactId>
+      <version>${leveldbjni-version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.fusesource.hawtjni</groupId>
+          <artifactId>hawtjni-runtime</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -225,14 +232,13 @@
             </Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <Bundle-NativeCode>
-              <!--META-INF/native/windows32/leveldbjni.dll;osname=Win32;processor=x86,
-              META-INF/native/windows64/leveldbjni.dll;osname=Win32;processor=x86-64,-->
-              <!--META-INF/native/osx/libleveldbjni.jnilib;osname=macosx;processor=x86,-->
-              META-INF/native/osx64/x86_64/libleveldbjni.jnilib;osname=macosx;processor=x86-64,
+              META-INF/native/windows32/leveldbjni.dll;osname=Win32;processor=x86,
+              META-INF/native/windows64/leveldbjni.dll;osname=Win32;processor=x86-64,
+              META-INF/native/osx/libleveldbjni.jnilib;osname=macosx;processor=x86,
+              META-INF/native/osx/libleveldbjni.jnilib;osname=macosx;processor=x86-64,
               META-INF/native/osx64/aarch64/libleveldbjni.jnilib;osname=macosx;processor=aarch64,
               META-INF/native/linux32/libleveldbjni.so;osname=Linux;processor=x86,
               META-INF/native/linux64/libleveldbjni.so;osname=Linux;processor=x86-64,
-              <!--META-INF/native/linux32/arm/libleveldbjni.so;osname=Linux;processor=armv7l,-->
               META-INF/native/linux64/aarch64/libleveldbjni.so;osname=Linux;processor=aarch64
             </Bundle-NativeCode>
           </instructions>
