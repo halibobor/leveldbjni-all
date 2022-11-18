@@ -41,7 +41,7 @@
 
   <groupId>com.halibobor</groupId>
   <artifactId>leveldbjni-all</artifactId>
-  <version>1.18.1</version>
+  <version>1.18.2</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -49,7 +49,7 @@
     <forge-project-id-uc>LEVELDBJNI</forge-project-id-uc>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <hawtjni-version>1.18</hawtjni-version>
-    <leveldb-api-version>0.6</leveldb-api-version>
+    <leveldb-api-version>1.18.2</leveldb-api-version>
     <leveldbjni-version>1.8</leveldbjni-version>
     <junit-version>4.13.2</junit-version>
     <jacoco.version>0.8.8</jacoco.version>
@@ -117,7 +117,16 @@
           <groupId>org.fusesource.hawtjni</groupId>
           <artifactId>hawtjni-runtime</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.iq80.leveldb</groupId>
+          <artifactId>leveldb-api</artifactId>
+        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.halibobor</groupId>
+      <artifactId>leveldb-api</artifactId>
+      <version>${leveldb-api-version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -219,7 +228,7 @@
             <Bundle-Name>${project.artifactId}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
             <Export-Package>
-              org.fusesource.leveldbjni*;version=${project.version},
+              org.fusesource.leveldbjni*;version=${leveldbjni-version},
               org.iq80.leveldb*;version=${leveldb-api-version},
               org.fusesource.hawtjni*;version=${hawtjni-version},
             </Export-Package>
