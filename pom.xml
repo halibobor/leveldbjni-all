@@ -39,7 +39,7 @@
     <version>1.9</version>
   </parent>
 
-  <groupId>com.halibobor</groupId>
+  <groupId>io.github.tronprotocol</groupId>
   <artifactId>leveldbjni-all</artifactId>
   <version>1.18.2</version>
   <packaging>bundle</packaging>
@@ -124,7 +124,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.halibobor</groupId>
+      <groupId>io.github.tronprotocol</groupId>
       <artifactId>leveldb-api</artifactId>
       <version>${leveldb-api-version}</version>
     </dependency>
