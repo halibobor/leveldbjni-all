@@ -29,8 +29,8 @@ executors:
       HOMEBREW_NO_AUTO_UPDATE: true
   amd64-macos:
     macos:
-      xcode: "14.0.0"
-    resource_class: macos.x86.medium
+      xcode: "13.3.0"
+    resource_class: macos.x86.medium.gen2
     working_directory: ~/project
     environment:
       HOMEBREW_NO_AUTO_UPDATE: true
@@ -110,6 +110,5 @@ workflows:
     jobs:
       - amd64-ubuntu
       - arm64-ubuntu
-      - i386-ubuntu
       - arm64-macos
       - amd64-macos

@@ -31,8 +31,8 @@
  */
 package org.fusesource.leveldbjni.test;
 
-import java.util.stream.Collectors;
 import junit.framework.TestCase;
+import org.codehaus.plexus.archiver.tar.TarGZipUnArchiver;
 import org.fusesource.leveldbjni.JniDBFactory;
 import org.fusesource.leveldbjni.internal.JniDB;
 import org.iq80.leveldb.*;
@@ -46,7 +46,6 @@ import java.util.*;
 
 import static org.fusesource.leveldbjni.JniDBFactory.asString;
 import static org.fusesource.leveldbjni.JniDBFactory.bytes;
-import static org.fusesource.leveldbjni.JniDBFactory.factory;
 
 /**
  * A Unit test for the DB class implementation.
@@ -66,7 +65,7 @@ public class DBTest extends TestCase {
     @Test
     public void testOpen() throws IOException {
 
-        Options options = new Options().createIfMissing(true);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -92,7 +91,7 @@ public class DBTest extends TestCase {
     @Test
     public void testCRUD() throws IOException, DBException {
 
-        Options options = new Options().createIfMissing(true);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -143,6 +142,42 @@ public class DBTest extends TestCase {
         iterator.close();
         assertEquals(expecting, actual);
 
+        db.close();
+    }
+
+    @Test
+    public void testIterator2() throws IOException, DBException {
+
+        final TarGZipUnArchiver ua = new TarGZipUnArchiver();
+        ua.setSourceFile(new File(getClass().getClassLoader()
+                .getResource("data/" + getName() + ".tgz").getFile()));
+        File file = new File("test-data");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        ua.setDestDirectory(new File("test-data"));
+        ua.extract();
+
+        Options options = new Options();
+        options.createIfMissing(false);
+        options.paranoidChecks(true);
+        options.verifyChecksums(true);
+        options.compressionType(CompressionType.SNAPPY);
+        options.blockSize(4 * 1024);
+        options.writeBufferSize(10 * 1024 * 1024);
+        options.cacheSize(10 * 1024 * 1024L);
+        options.maxOpenFiles(1000);
+        options.bitsPerKey(10);
+        File path = new File("test-data",getName());
+        DB db = factory.open(path, options);
+        DBIterator iterator = db.iterator();
+        int i = 0;
+        for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
+            assertEquals(iterator.peekNext().getValue(), db.get(iterator.peekNext().getKey()));
+            i++;
+        }
+        assertEquals(138, i);
+        iterator.close();
         db.close();
     }
 
@@ -215,7 +250,7 @@ public class DBTest extends TestCase {
 
     @Test
     public void testApproximateSizes() throws IOException, DBException {
-        Options options = new Options().createIfMissing(true);
+        Options options = new Options().createIfMissing(true).bitsPerKey(100);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -239,7 +274,7 @@ public class DBTest extends TestCase {
 
     @Test
     public void testGetProperty() throws IOException, DBException {
-        Options options = new Options().createIfMissing(true);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
 
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
@@ -353,7 +388,7 @@ public class DBTest extends TestCase {
     public void testLogger() throws IOException, InterruptedException, DBException {
         final List<String> messages = Collections.synchronizedList(new ArrayList<String>());
 
-        Options options = new Options().createIfMissing(true);
+        Options options = new Options().createIfMissing(true).bitsPerKey(10);
         options.logger(new Logger() {
             public void log(String message) {
                 messages.add(message);
@@ -852,7 +887,7 @@ public class DBTest extends TestCase {
         Options options = new Options().createIfMissing(true);
         options.comparator(new DBComparator() {
             public int compare(byte[] o1, byte[] o2) {
-                return Byte.compare(o1[0],o2[0]);
+                return o1[0]- o2[0];
             }
             public String name() {
                 return getName();
@@ -868,27 +903,28 @@ public class DBTest extends TestCase {
         File path = getTestDirectory(getName());
         DB db = factory.open(path, options);
         long start = System.currentTimeMillis();
-        Set<Byte> bytes = new HashSet<>();
+        Set<Byte> bytes = new HashSet<Byte>();
+        Random r = new Random();
         for (int i = 0; i < 256 ; i++) {
             bytes.add(bytes(i +"")[0]);
-            try (WriteBatch batch = db.createWriteBatch()) {
-                StringBuilder s = new StringBuilder();
-                for (int j = 0; j < 1024 * 1024 * 3; j++) {
-                    s.append((char)(new Random().nextInt(128)));
-                }
-                batch.put(bytes(i +""),bytes(s.toString()));
-                db.write(batch);
-                db.compactRange(null, null);
-                statProperty(db, i);
+            WriteBatch batch = db.createWriteBatch();
+            StringBuilder s = new StringBuilder();
+            for (int j = 0; j < 1024; j++) {
+                s.append((char)(r.nextInt(128)));
             }
+            batch.put(bytes(i +""),bytes(s.toString()));
+            db.write(batch);
+            db.compactRange(null, null);
+            statProperty(db, i);
+            batch.close();
         }
 
         int c = 0;
-        try (DBIterator iterator = db.iterator()){
-            for (iterator.seekToFirst();iterator.hasNext();iterator.next()) {
-                c++;
-            }
+        DBIterator iterator = db.iterator();
+        for (iterator.seekToFirst();iterator.hasNext();iterator.next()) {
+            c++;
         }
+        iterator.close();
         Assert.assertEquals(bytes.size(), 10);
         Assert.assertEquals(bytes.size(), c);
         long e = System.currentTimeMillis();
@@ -899,10 +935,10 @@ public class DBTest extends TestCase {
 
     private void statProperty(DB  db, int i) {
         try {
-            List<String > stats = Arrays.stream(db.getProperty("leveldb.stats")
-                .split("\n")).skip(3).collect(Collectors.toList());
+            List<String > stats = Arrays.asList(db.getProperty("leveldb.stats")
+                    .split("\n"));
             double total = 0;
-            for (String stat : stats) {
+            for (String stat : stats.subList(3, stats.size())) {
                 String[] tmp = stat.trim().replaceAll(" +", ",").split(",");
                 total += Double.parseDouble(tmp[2]);
             }
