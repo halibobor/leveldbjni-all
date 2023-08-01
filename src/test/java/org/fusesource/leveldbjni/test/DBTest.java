@@ -6,7 +6,7 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright
  * notice, this list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above
@@ -16,7 +16,7 @@
  *    * Neither the name of FuseSource Corp. nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -37,6 +37,7 @@ import static org.fusesource.leveldbjni.JniDBFactory.factory;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -384,6 +385,201 @@ public class DBTest extends TestCase {
         assertEquals(expecting, actual);
 
         db.close();
+    }
+    private final int MAX_LENGTH = Long.toString(Long.MAX_VALUE).getBytes().length;
+
+    @Test
+    public void testCustomComparator3() throws IOException, DBException {
+        Options options = new Options().createIfMissing(true);
+        options.comparator(new DBComparator() {
+            public int compare(byte[] o1, byte[] o2) {
+                return compareKey(o1, o2);
+            }
+            public String name() {
+                return getName();
+            }
+            public byte[] findShortestSeparator(byte[] start, byte[] limit) {
+                return new byte[0];
+            }
+            public byte[] findShortSuccessor(byte[] key) {
+                return new byte[0];
+            }
+        });
+
+        File path = getTestDirectory(getName());
+        DB db = factory.open(path, options);
+        byte[] sellTokenID1 = ("100").getBytes();
+        byte[] buyTokenID1 = ("200").getBytes();
+        byte[] k0 = createKey(sellTokenID1, buyTokenID1, 0L, 0L);
+        byte[] k1 = createKey(sellTokenID1, buyTokenID1, 10L, 21L);
+        byte[] k2 = createKey(sellTokenID1, buyTokenID1, 30L, 63L);
+        byte[] k3 = createKey(sellTokenID1, buyTokenID1, 1L, 4L);
+        byte[] v0 = "v0".getBytes();
+        byte[] v1 = "v1".getBytes();
+        byte[] v2 = "v2".getBytes();
+        byte[] v3 = "v3".getBytes();
+        db.put(k2, v2);
+        try (DBIterator iterator = db.iterator()) {
+            int cnt = 0;
+            for (iterator.seekToFirst();iterator.Valid();iterator.next()) {
+                cnt++;
+            }
+            assertEquals(1, cnt);
+        }
+        assertEquals(v2, db.get(k2));
+        assertEquals(v2, db.get(k1));
+        db.put(k1, v1);
+        try (DBIterator iterator = db.iterator()) {
+            int cnt = 0;
+            for (iterator.seekToFirst();iterator.Valid();iterator.next()) {
+                cnt++;
+            }
+            assertEquals(1, cnt);
+        }
+        assertEquals(v1, db.get(k2));
+        assertEquals(v1, db.get(k1));
+        db.put(k0, v0);
+        try (DBIterator iterator = db.iterator()) {
+            int cnt = 0;
+            for (iterator.seekToFirst();iterator.Valid();iterator.next()) {
+                cnt++;
+            }
+            assertEquals(2, cnt);
+        }
+        assertEquals(v0, db.get(k0));
+        db.put(k3, v3);
+        try (DBIterator iterator = db.iterator()) {
+            int cnt = 0;
+            for (iterator.seekToFirst();iterator.Valid();iterator.next()) {
+                cnt++;
+            }
+            assertEquals(3, cnt);
+        }
+        assertEquals(v3, db.get(k3));
+        db.close();
+    }
+
+    private byte[] createKey(byte[] sId, byte[] bId, long sq, long bq) {
+        byte[] sb = toByteArray(sq);
+        byte[] bb = toByteArray(bq);
+        long gcd = findGCD(sq, bq);
+        if (gcd != 0) {
+            sb = toByteArray(sq / gcd);
+            bb = toByteArray(bq / gcd);
+        }
+        byte[] result = new byte[MAX_LENGTH * 2 + Long.BYTES * 2];
+        System.arraycopy(sId, 0, result, 0, sId.length);
+        System.arraycopy(bId, 0, result, MAX_LENGTH, bId.length);
+        System.arraycopy(sb, 0, result, MAX_LENGTH * 2, Long.BYTES);
+        System.arraycopy(bb, 0, result, MAX_LENGTH * 2 + Long.BYTES, Long.BYTES);
+        return result;
+    }
+
+    private int compareKey(byte[] o1, byte[] o2) {
+        byte[] p1 = new byte[MAX_LENGTH * 2];
+        byte[] p2 = new byte[MAX_LENGTH * 2];
+
+        System.arraycopy(o1, 0, p1, 0, MAX_LENGTH * 2);
+        System.arraycopy(o2, 0, p2, 0, MAX_LENGTH * 2);
+
+        int ret = compareUnsigned(p1, p2);
+        if (ret != 0) {
+            return ret;
+        }
+        byte[] s1b = new byte[Long.BYTES];
+        byte[] b1b = new byte[Long.BYTES];
+
+        byte[] s2b = new byte[Long.BYTES];
+        byte[] b2b = new byte[Long.BYTES];
+
+        System.arraycopy(o1, MAX_LENGTH * 2, s1b, 0, Long.BYTES);
+        System.arraycopy(o1, MAX_LENGTH * 2 + Long.BYTES, b1b, 0, Long.BYTES);
+
+        System.arraycopy(o2, MAX_LENGTH * 2, s2b, 0, Long.BYTES);
+        System.arraycopy(o2, MAX_LENGTH * 2 + Long.BYTES, b2b, 0, Long.BYTES);
+        long s1 = fromBytes(s1b);
+        long b1 = fromBytes(b1b);
+        long s2 = fromBytes(s2b);
+        long b2 = fromBytes(b2b);
+        if ((s1 == 0 || b1 == 0) && (s2 == 0 || b2 == 0)) {
+            return 0;
+        }
+        if (s1 == 0 || b1 == 0) {
+            return -1;
+        }
+        if (s2 == 0 || b2 == 0) {
+            return 1;
+        }
+        return comparePrice(s1, b1, s2, b2);
+
+    }
+
+    private int comparePrice(long s1, long b1, long s2, long b2) {
+        try {
+            return Long.compare(Math.multiplyExact(b1, s2), Math.multiplyExact(b2, s1));
+
+        } catch (ArithmeticException ex) {
+            return BigInteger.valueOf(b1).multiply(BigInteger.valueOf(s2))
+                    .compareTo(BigInteger.valueOf(b2).multiply(BigInteger.valueOf(s1)));
+        }
+    }
+
+    private int compareUnsigned(byte[] a, byte[] b)
+    {
+        if (a == b)
+        {
+            return 0;
+        }
+        if (a == null)
+        {
+            return -1;
+        }
+        if (b == null)
+        {
+            return 1;
+        }
+        int minLen = Math.min(a.length, b.length);
+        for (int i = 0; i < minLen; ++i)
+        {
+            int aVal = a[i] & 0xFF, bVal = b[i] & 0xFF;
+            if (aVal < bVal)
+            {
+                return -1;
+            }
+            if (aVal > bVal)
+            {
+                return 1;
+            }
+        }
+        return Integer.compare(a.length, b.length);
+    }
+
+    private long findGCD(long number1, long number2) {
+        if (number1 == 0 || number2 == 0) {
+            return 0;
+        }
+        return calGCD(number1, number2);
+    }
+
+    private long calGCD(long number1, long number2) {
+        if (number2 == 0) {
+            return number1;
+        }
+        return calGCD(number2, number1 % number2);
+    }
+
+    private byte[] toByteArray(long value) {
+        byte[] result = new byte[8];
+        for (int i = 7; i >= 0; i--) {
+            result[i] = (byte) (value & 0xffL);
+            value >>= 8;
+        }
+        return result;
+    }
+    private long fromBytes(byte[] bytes) {
+        return (bytes[0] & 0xFFL) << 56 | (bytes[1] & 0xFFL) << 48 | (bytes[2] & 0xFFL) << 40
+                | (bytes[3] & 0xFFL) << 32 | (bytes[4] & 0xFFL) << 24 | (bytes[5] & 0xFFL) << 16
+                | (bytes[6] & 0xFFL) << 8 | (bytes[7] & 0xFFL);
     }
 
     @Test
