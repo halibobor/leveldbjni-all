@@ -8,7 +8,7 @@ wget https://src.fedoraproject.org/lookaside/pkgs/snappy/snappy-1.0.5.tar.gz/4c0
 tar -zxvf snappy-1.0.5.tar.gz
 
 git clone git@github.com:chirino/leveldb.git
-git clone git@github.com:fusesource/leveldbjni.git
+git clone -b release_1.18.4 https://github.com/halibobor/leveldbjni.git
 
 
 export SNAPPY_HOME=`cd snappy-1.0.5; pwd`
@@ -29,19 +29,26 @@ make libleveldb.a
 
 #Special for M1
 ```shell script
-brew install maven
+brew install maven autoconf automake libtool
 set $JAVA_HOME
-update pom.xml
-        1. 1.5 -> 1.8 
-        2. add java_home, remove with-universal
-            <arg>--with-jni-jdk=${env.JAVA_HOME}</arg>
-            <arg>--with-leveldb=${env.LEVELDB_HOME}</arg>
-            <arg>--with-snappy=${env.SNAPPY_HOME}</arg>
-            <!--<arg>--with-universal</arg>-->
 ```
     
 
 #Build jni
 ```shell
- mvn clean install -P download -P osx
+cd ${LEVELDBJNI_HOME}
+ mvn clean install -P osx-aarch64
+```
+## build err for mac
+```
+[INFO] configure: error: cannot find required auxiliary files: compile
+[INFO] make: *** [config.status] Error 1
+```
+### Solution
+```shell
+cd ${LEVELDBJNI_HOME}/leveldbjni-osx-aarch64/target/native-build
+automake --add-missing --copy --force-missing
+autoreconf -fiv
+cd ${LEVELDBJNI_HOME}
+mvn  install -P osx-aarch64
 ```

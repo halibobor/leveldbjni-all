@@ -41,7 +41,7 @@
 
   <groupId>io.github.tronprotocol</groupId>
   <artifactId>leveldbjni-all</artifactId>
-  <version>1.18.2</version>
+  <version>1.18.4</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -132,6 +132,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-archiver</artifactId>
+      <version>4.8.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
